@@ -3,741 +3,1420 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitness Comeback Plan Infographic</title>
+    <title>โปรแกรมสร้างเอกสารของฟรีแลนซ์</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Include SheetJS library from CDN -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
         body {
-            font-family: 'Kanit', sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            scroll-behavior: smooth;
         }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
+        .doc-output { /* Renamed for general use */
+            border: 1px solid #e2e8f0;
+            padding: 2rem;
+            margin-top: 2rem;
+            background-color: white;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            max-width: 800px;
             margin-left: auto;
             margin-right: auto;
-            height: 320px;
-            max-height: 400px;
+            display: none; /* Hide all initially */
         }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
-            }
+        .doc-output.active {
+            display: block; /* Show only the active one */
         }
-        .kpi-card {
-            background-color: #ffffff;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        .input-section {
+             background-color: #f9fafb;
+             padding: 1.5rem;
+             border-radius: 0.5rem;
+             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+             margin-bottom: 1rem; /* Reduced margin */
+             display: none; /* Hide all initially */
         }
-        .kpi-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+         .input-section.active {
+            display: block; /* Show only the active one */
         }
-        .gemini-btn {
-            background-color: #3357FF;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
+        label {
+            display: block;
+            margin-bottom: 0.25rem;
             font-weight: 500;
-            transition: background-color 0.3s ease;
+            color: #374151;
+            font-size: 0.875rem; /* Slightly smaller labels */
+        }
+        input[type="text"], input[type="number"], input[type="date"], textarea, select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            margin-bottom: 0.75rem;
+            box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            font-size: 0.875rem;
+        }
+        textarea {
+            min-height: 60px; /* Reduced height */
+        }
+        button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
             cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.875rem;
         }
-        .gemini-btn:hover {
-            background-color: #2546d7;
-        }
-        .gemini-btn:disabled {
-            background-color: #a0aec0;
-            cursor: not-allowed;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 4px solid #3357FF;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .tab-btn {
-            padding: 0.75rem 1.5rem;
-            cursor: pointer;
-            font-weight: 600;
-            color: #6b7280; /* gray-500 */
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
-        .tab-btn.active, .tab-btn:hover {
-            color: #3357FF;
-            border-bottom-color: #3357FF;
-        }
-        .workout-list {
-            list-style: none;
-            padding: 0;
-            text-align: left;
-            margin-top: 0.5rem;
-        }
-        .workout-list li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.875rem; /* text-sm */
-            color: #4b5563; /* gray-600 */
-            border-bottom: 1px solid #e5e7eb; /* gray-200 */
-            padding: 0.5rem 0;
-        }
-        .workout-list li:last-child {
-            border-bottom: none;
+        .btn-primary { background-color: #3b82f6; color: white; border: none; }
+        .btn-primary:hover:not(:disabled) { background-color: #2563eb; }
+        .btn-secondary { background-color: #6b7280; color: white; border: none; }
+        .btn-secondary:hover:not(:disabled) { background-color: #4b5563; }
+        .btn-success { background-color: #10b981; color: white; border: none; } /* Green for Download now */
+        .btn-success:hover:not(:disabled) { background-color: #059669; }
+        .btn-danger { background-color: #ef4444; color: white; border: none; }
+        .btn-danger:hover:not(:disabled) { background-color: #dc2626; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; margin-bottom: 1rem; font-size: 0.875rem;}
+        th, td { border: 1px solid #d1d5db; padding: 0.5rem; text-align: left; }
+        th { background-color: #f3f4f6; font-weight: 600; }
+        td.number-cell, th.number-cell { text-align: right; }
+        .signature-area { margin-top: 2rem; border-top: 1px solid #e2e8f0; padding-top: 1rem; font-size: 0.875rem;}
+        .signature-box { border-top: 1px dashed #9ca3af; padding-top: 0.5rem; margin-top: 1.5rem; text-align: center; }
+        #download-status { margin-top: 1rem; text-align: center; font-weight: 500; font-size: 0.875rem;} /* Changed ID */
+        .status-success { color: #10b981; }
+        .status-error { color: #ef4444; }
+        .status-loading { color: #3b82f6; }
+        .tab-button { background-color: #e5e7eb; color: #4b5563; border: 1px solid #d1d5db; border-bottom: none; }
+        .tab-button.active { background-color: #f9fafb; color: #1f2937; border-bottom: 1px solid #f9fafb; margin-bottom: -1px; z-index: 10; position: relative;}
+        .common-section { background-color: #f3f4f6; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;}
+        .contract-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; }
+        /* Added style for project name row */
+        .project-name-row td { background-color: #f9fafb; font-style: italic; font-weight: 500; }
+
+
+        /* Print styles */
+        @media print {
+             @page {
+                 size: A4;
+                 margin: 1cm; /* Adjust margin if needed */
+                 @top-center { content: ""; }
+                 @bottom-center { content: ""; }
+                 @bottom-left { content: ""; }
+                 @bottom-right { content: ""; }
+             }
+
+             body {
+                 margin: 0 !important;
+                 padding: 0 !important;
+                 background-color: white;
+                 font-family: 'Sarabun', sans-serif;
+                 -webkit-print-color-adjust: exact !important;
+                 color-adjust: exact !important;
+                 font-size: 10pt; /* Can reduce slightly if needed, e.g., 9.5pt */
+             }
+             #page-title,
+             #input-container,
+             .action-button-container,
+             #doc-type-selector,
+             #download-status { display: none !important; }
+
+             .doc-output {
+                 border: none !important;
+                 padding: 0 !important;
+                 margin: 0 !important;
+                 box-shadow: none !important;
+                 width: 100% !important;
+                 max-width: 100% !important;
+                 display: block !important;
+             }
+             .doc-output:not(.active) { display: none !important; }
+             table {
+                 font-size: 9pt; /* Can reduce slightly */
+                 page-break-inside: auto; /* Allow table rows to break if necessary */
+             }
+             tr {
+                 page-break-inside: avoid; /* Try to keep rows together */
+                 page-break-after: auto;
+             }
+             th, td { padding: 0.3rem; }
+             /* Try to keep notes/terms block together and avoid breaking right after it */
+             .output-notes-terms, .output-payment-details, .contract-section {
+                 page-break-inside: avoid;
+                 page-break-after: auto; /* Changed from avoid to auto, avoid can sometimes force breaks */
+             }
+             /* Try very hard to keep the signature area on one page */
+             .signature-area {
+                 margin-top: 1.5cm;
+                 padding-top: 0.5cm;
+                 border-top: 1px solid #ccc !important;
+                 page-break-inside: avoid !important;
+                 page-break-before: auto; /* Let browser decide if it needs to break before */
+             }
+             th, .project-name-row td { background-color: #f3f4f6 !important; print-color-adjust: exact !important; }
+             h1, h2, h3 { color: black !important; page-break-after: avoid; } /* Avoid breaking after headings */
+             .whitespace-pre-wrap { white-space: pre-wrap !important; }
+             /* Hide remove button in print */
+             .remove-item-btn { display: none !important; }
         }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="bg-gray-100 p-4 md:p-8">
 
-    <div class="container mx-auto p-4 md:p-8">
+    <div class="container mx-auto">
+        <h1 id="page-title" class="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-gray-800">โปรแกรมสร้างเอกสารของฟรีแลนซ์</h1>
 
-        <header class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-bold text-[#3357FF] mb-2">Your Fitness Comeback</h1>
-            <p class="text-lg md:text-xl text-gray-600">แผนการฝึก 3 เดือนเพื่อการกลับมาฟิตอย่างต่อเนื่องและยั่งยืน</p>
-        </header>
+        <!-- Document Type Selector -->
+        <div id="doc-type-selector" class="mb-4 flex justify-center border-b border-gray-300">
+            <button class="tab-button px-4 py-2 rounded-t-md active" onclick="switchDocType('quotation')">ใบเสนอราคา</button>
+            <button class="tab-button px-4 py-2 rounded-t-md" onclick="switchDocType('invoice')">ใบแจ้งหนี้</button>
+            <button class="tab-button px-4 py-2 rounded-t-md" onclick="switchDocType('receipt')">ใบเสร็จรับเงิน</button>
+            <button class="tab-button px-4 py-2 rounded-t-md" onclick="switchDocType('contract')">สัญญาจ้างงาน</button>
+            <button class="tab-button px-4 py-2 rounded-t-md" onclick="switchDocType('submission')">ใบส่งมอบงาน</button>
+        </div>
 
-        <section id="philosophy" class="mb-12">
-            <h2 class="text-3xl font-bold text-center mb-8">หัวใจสำคัญของการฝึกช่วงปรับตัว</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="kpi-card">
-                    <div class="text-4xl mb-3">🔥</div>
-                    <h3 class="text-xl font-semibold text-[#FF5733]">วอร์มอัพเสมอ</h3>
-                    <p class="text-gray-600 mt-2">5-10 นาทีเพื่อเตรียมกล้ามเนื้อและข้อต่อ ลดความเสี่ยงบาดเจ็บ</p>
-                </div>
-                <div class="kpi-card">
-                    <div class="text-4xl mb-3">🔄</div>
-                    <h3 class="text-xl font-semibold text-[#33FF57]">เริ่มจาก 2 เซ็ต</h3>
-                    <p class="text-gray-600 mt-2">สร้างความคุ้นเคยใน 1-2 สัปดาห์แรก แล้วค่อยเพิ่มเป็น 3 เซ็ตเมื่อพร้อม</p>
-                </div>
-                <div class="kpi-card">
-                    <div class="text-4xl mb-3">⏳</div>
-                    <h3 class="text-xl font-semibold text-[#F1C40F]">พักให้เพียงพอ</h3>
-                    <p class="text-gray-600 mt-2">พักระหว่างเซ็ต 1:30 - 2:00 นาที เพื่อให้กล้ามเนื้อได้ฟื้นตัว</p>
-                </div>
-                <div class="kpi-card">
-                    <div class="text-4xl mb-3">🧘‍♀️</div>
-                    <h3 class="text-xl font-semibold text-[#FF33A1]">ฟื้นฟูร่างกาย</h3>
-                    <p class="text-gray-600 mt-2">จัดเวลา 30 นาทีในวันพักสำหรับโยคะหรือคาร์ดิโอเบาๆ</p>
-                </div>
-            </div>
-        </section>
-        
-        <section id="3-month-plan" class="mb-12">
-            <h2 class="text-3xl font-bold text-center mb-8">แผนการฝึก 3 เดือน: Progressive Overload</h2>
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <p class="text-center text-gray-600 mb-6">
-                    โปรแกรมนี้จะค่อยๆ เพิ่มความท้าทายในแต่ละเดือนเพื่อให้คุณพัฒนาอย่างต่อเนื่อง โดยใช้เวลาไม่นานในแต่ละวัน คลิกเพื่อดูแผนของแต่ละเดือน
-                </p>
-        
-                <div class="flex flex-wrap justify-center border-b border-gray-200 mb-6">
-                    <button id="btn-month-1" class="tab-btn active">เดือนที่ 1: สร้างพื้นฐาน</button>
-                    <button id="btn-month-2" class="tab-btn">เดือนที่ 2: เพิ่มความเข้มข้น</button>
-                    <button id="btn-month-3" class="tab-btn">เดือนที่ 3: พัฒนาสู่ขั้นสูง</button>
-                </div>
-        
-                <div id="plan-month-1" class="tab-content">
-                    <h3 class="text-2xl font-bold text-center mb-4 text-[#3357FF]">เดือนที่ 1: Foundation (Full Body 3 วัน/สัปดาห์)</h3>
-                    <p class="text-center text-gray-600 mb-6">เป้าหมาย: เน้นท่าที่ถูกต้อง สร้างความแข็งแรงทั่วร่างกาย และความสม่ำเสมอ</p>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                        <div class="p-4 bg-blue-50 rounded-lg">
-                            <p class="font-bold">วันจันทร์: Full Body A</p>
-                            <p class="text-xs text-gray-500 mb-2">เน้นการเคลื่อนไหวพื้นฐานทุกส่วน</p>
-                            <ul class="workout-list">
-                                <li><span>Bodyweight Squat</span><span class="font-mono text-gray-500">3x10-15</span></li>
-                                <li><span>Ring Rows</span><span class="font-mono text-gray-500">3x8-12</span></li>
-                                <li><span>Ring Push-ups</span><span class="font-mono text-gray-500">3x8-12</span></li>
-                                <li><span>Glute Bridge</span><span class="font-mono text-gray-500">3x12-15</span></li>
-                                <li><span>Plank</span><span class="font-mono text-gray-500">3x30-60วิ</span></li>
-                            </ul>
-                        </div>
-                        <div class="p-4 bg-blue-50 rounded-lg">
-                            <p class="font-bold">วันพุธ: Full Body B</p>
-                            <p class="text-xs text-gray-500 mb-2">เพิ่มแรงดึงและแกนกลางลำตัว</p>
-                            <ul class="workout-list">
-                                <li><span>Lunges</span><span class="font-mono text-gray-500">3x8-10</span></li>
-                                <li><span>Assisted Chin-ups</span><span class="font-mono text-gray-500">3x3-6</span></li>
-                                <li><span>Shoulder Push-up</span><span class="font-mono text-gray-500">3x5-8</span></li>
-                                <li><span>Hanging Knee Raises</span><span class="font-mono text-gray-500">3x8-12</span></li>
-                                <li><span>Ring Face Pulls</span><span class="font-mono text-gray-500">3x10-12</span></li>
-                            </ul>
-                        </div>
-                        <div class="p-4 bg-blue-50 rounded-lg">
-                            <p class="font-bold">วันศุกร์: Full Body C</p>
-                             <p class="text-xs text-gray-500 mb-2">ต่อยอดท่าพื้นฐานให้ยากขึ้น</p>
-                             <ul class="workout-list">
-                                <li><span>Split Squat</span><span class="font-mono text-gray-500">3x8-12</span></li>
-                                <li><span>Ring Rows (Harder)</span><span class="font-mono text-gray-500">3x8-12</span></li>
-                                <li><span>Ring Push-ups (Harder)</span><span class="font-mono text-gray-500">3x8-12</span></li>
-                                <li><span>Assisted Chin-ups</span><span class="font-mono text-gray-500">3x4-8</span></li>
-                                <li><span>Ring Bicep Curl</span><span class="font-mono text-gray-500">3x8-10</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="plan-month-2" class="tab-content hidden">
-                    <h3 class="text-2xl font-bold text-center mb-4 text-[#3357FF]">เดือนที่ 2: Intensification (Upper/Lower Split 3 วัน/สัปดาห์)</h3>
-                    <p class="text-center text-gray-600 mb-6">เป้าหมาย: เริ่มแยกส่วนการฝึกเพื่อให้กล้ามเนื้อแต่ละส่วนได้ทำงานหนักขึ้นและมีเวลาพักฟื้นเต็มที่</p>
-                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                        <div class="p-4 bg-orange-50 rounded-lg">
-                            <p class="font-bold">วันจันทร์: Upper Body</p>
-                            <p class="text-xs text-gray-500 mb-2">สร้างความแข็งแรงส่วนบน</p>
-                             <ul class="workout-list">
-                                <li><span>Ring Push-ups</span><span class="font-mono text-gray-500">3x8-12</span></li>
-                                <li><span>Chin-ups</span><span class="font-mono text-gray-500">3x5-8</span></li>
-                                <li><span>Ring Dips</span><span class="font-mono text-gray-500">3x6-10</span></li>
-                                <li><span>Ring Rows</span><span class="font-mono text-gray-500">3x10-15</span></li>
-                                <li><span>Shoulder Push-ups</span><span class="font-mono text-gray-500">3x6-10</span></li>
-                            </ul>
-                        </div>
-                        <div class="p-4 bg-green-50 rounded-lg">
-                            <p class="font-bold">วันพุธ: Lower Body & Core</p>
-                            <p class="text-xs text-gray-500 mb-2">สร้างความแข็งแรงขาและท้อง</p>
-                            <ul class="workout-list">
-                                <li><span>Goblet Squat</span><span class="font-mono text-gray-500">3x8-12</span></li>
-                                <li><span>Lunges</span><span class="font-mono text-gray-500">3x10-12</span></li>
-                                <li><span>Glute Bridge</span><span class="font-mono text-gray-500">3x12-15</span></li>
-                                <li><span>Nordic Ham Curls</span><span class="font-mono text-gray-500">3x5-8</span></li>
-                                <li><span>Hanging Knee Raises</span><span class="font-mono text-gray-500">3x10-15</span></li>
-                            </ul>
-                        </div>
-                        <div class="p-4 bg-orange-50 rounded-lg">
-                            <p class="font-bold">วันศุกร์: Upper Body</p>
-                            <p class="text-xs text-gray-500 mb-2">เพิ่ม Volume กล้ามเนื้อส่วนบน</p>
-                             <ul class="workout-list">
-                                <li><span>Ring Dips</span><span class="font-mono text-gray-500">3x8-12</span></li>
-                                <li><span>Wide Pull-ups</span><span class="font-mono text-gray-500">3x5-8</span></li>
-                                <li><span>Bulgarian Push-ups</span><span class="font-mono text-gray-500">3x10-15</span></li>
-                                <li><span>Ring Face Pulls</span><span class="font-mono text-gray-500">3x12-15</span></li>
-                                <li><span>Tricep Extensions</span><span class="font-mono text-gray-500">3x8-12</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="plan-month-3" class="tab-content hidden">
-                    <h3 class="text-2xl font-bold text-center mb-4 text-[#3357FF]">เดือนที่ 3: Specialization (Push/Pull/Legs 3 วัน/สัปดาห์)</h3>
-                    <p class="text-center text-gray-600 mb-6">เป้าหมาย: แบ่งการฝึกตามการเคลื่อนไหว (ผลัก, ดึง, ขา) เพื่อให้สามารถฝึกแต่ละส่วนได้อย่างหนักและมีประสิทธิภาพสูงสุด</p>
-                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                        <div class="p-4 bg-red-50 rounded-lg">
-                            <p class="font-bold">วันจันทร์: Push Day</p>
-                            <p class="text-xs text-gray-500 mb-2">เน้นกล้ามเนื้อผลัก</p>
-                             <ul class="workout-list">
-                                <li><span>Ring Dips</span><span class="font-mono text-gray-500">4x6-10</span></li>
-                                <li><span>Ring Push-ups</span><span class="font-mono text-gray-500">4x10-15</span></li>
-                                <li><span>Shoulder Push-ups</span><span class="font-mono text-gray-500">4x6-10</span></li>
-                                <li><span>Tricep Extensions</span><span class="font-mono text-gray-500">4x8-12</span></li>
-                            </ul>
-                        </div>
-                        <div class="p-4 bg-purple-50 rounded-lg">
-                            <p class="font-bold">วันพุธ: Pull Day</p>
-                            <p class="text-xs text-gray-500 mb-2">เน้นกล้ามเนื้อดึง</p>
-                            <ul class="workout-list">
-                                <li><span>Wide Pull-ups</span><span class="font-mono text-gray-500">4x6-10</span></li>
-                                <li><span>Archer Rows</span><span class="font-mono text-gray-500">4x5-8</span></li>
-                                <li><span>Ring Face Pulls</span><span class="font-mono text-gray-500">4x12-15</span></li>
-                                <li><span>Ring Bicep Curls</span><span class="font-mono text-gray-500">4x8-12</span></li>
-                            </ul>
-                        </div>
-                        <div class="p-4 bg-green-50 rounded-lg">
-                            <p class="font-bold">วันศุกร์: Leg Day</p>
-                            <p class="text-xs text-gray-500 mb-2">เน้นกล้ามเนื้อขา</p>
-                             <ul class="workout-list">
-                                <li><span>Pistol Squat Progressions</span><span class="font-mono text-gray-500">4x5-8</span></li>
-                                <li><span>Nordic Ham Curls</span><span class="font-mono text-gray-500">4x6-10</span></li>
-                                <li><span>Goblet Squat</span><span class="font-mono text-gray-500">4x10-15</span></li>
-                                <li><span>Lunges</span><span class="font-mono text-gray-500">4x10-12</span></li>
-                                <li><span>L-Sit</span><span class="font-mono text-gray-500">4x15-30วิ</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        <section id="workout-analysis" class="mb-12">
-            <h2 class="text-3xl font-bold text-center mb-8">Workout Analysis & Progression</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-2xl font-bold mb-4 text-[#3357FF]">Month 1: Muscle Group Focus</h3>
-                    <p class="text-gray-600 mb-6">ในเดือนแรก เราจะเน้นการฝึกทุกส่วนอย่างสมดุลในแต่ละวันเพื่อสร้างรากฐานที่แข็งแกร่ง</p>
-                    <div class="chart-container">
-                        <canvas id="workoutAChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-2xl font-bold mb-4 text-[#3357FF]">Month 2: Upper vs. Lower Volume</h3>
-                     <p class="text-gray-600 mb-6">เดือนที่สองจะแบ่งการฝึกชัดเจน ทำให้เราเพิ่ม Volume (จำนวนท่า x เซ็ต x ครั้ง) ให้กับกล้ามเนื้อแต่ละส่วนได้มากขึ้น</p>
-                    <div class="chart-container">
-                        <canvas id="workoutBChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-2xl font-bold mb-4 text-[#3357FF]">3-Month Strength Progression</h3>
-                     <p class="text-gray-600 mb-6">กราฟนี้แสดงแนวโน้มความแข็งแรงที่คาดหวังเมื่อฝึกตามหลัก Progressive Overload หรือการเพิ่มความท้าทายขึ้นทีละน้อยอย่างสม่ำเสมอ</p>
-                    <div class="chart-container">
-                        <canvas id="progressionChart"></canvas>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <section id="gemini-features" class="mb-12">
-            <h2 class="text-3xl font-bold text-center mb-8">✨ Gemini AI Fitness Coach</h2>
-            
-            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-                <h3 class="text-2xl font-bold mb-4 text-[#3357FF]">คู่มือภาพสาธิตท่าออกกำลังกาย</h3>
-                <p class="text-gray-600 mb-6">ไม่แน่ใจว่าแต่ละท่าเล่นอย่างไร? ให้ Gemini สร้างภาพสาธิตการเคลื่อนไหวที่ถูกต้องให้คุณดู</p>
-                <div id="exercise-explainer-list" class="space-y-4"></div>
+        <div id="input-container">
+            <!-- Common Input Section -->
+            <div class="common-section">
+                 <h2 class="text-lg font-semibold mb-3 text-gray-700">ข้อมูลทั่วไป (ใช้ร่วมกัน)</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div>
+                         <h3 class="text-md font-medium mb-1 text-gray-600">ข้อมูลผู้ขาย/ฟรีแลนซ์/ผู้ออกเอกสาร</h3>
+                         <!-- Removed Logo Input -->
+                         <label for="your-company">ชื่อบริษัท/ชื่อ:</label>
+                         <input type="text" id="your-company" value="นายบุริศร์ ชาติชำนิ" oninput="updateOutput(currentDocType)">
+                          <label for="your-tax-id">เลขประจำตัวผู้เสียภาษี:</label>
+                         <input type="text" id="your-tax-id" value="1-1103-01367-17-2" oninput="updateOutput(currentDocType)">
+                         <label for="your-address">ที่อยู่:</label>
+                         <textarea id="your-address" oninput="updateOutput(currentDocType)">61/315 ม.3 มบ.ไรมอนพาร์ค ซ.บางปลา 12 ถ.เทพารักษ์ ต.บางปลา อ.บางพลี จ.สมุทรปราการ 10540</textarea>
+                         <label for="your-contact">ข้อมูลติดต่อ:</label>
+                         <input type="text" id="your-contact" value="083-149-4529, burist2016@gmail.com" oninput="updateOutput(currentDocType)">
+                     </div>
+                     <div>
+                         <h3 class="text-md font-medium mb-1 text-gray-600">ข้อมูลลูกค้า</h3>
+                         <label for="customer-company">ชื่อบริษัท/หน่วยงาน:</label>
+                         <input type="text" id="customer-company" placeholder="RSC/สรบ." oninput="updateOutput(currentDocType)">
+                          <label for="customer-tax-id">เลขประจำตัวผู้เสียภาษี:</label>
+                         <input type="text" id="customer-tax-id" oninput="updateOutput(currentDocType)">
+                         <label for="customer-contact-person">ผู้ติดต่อ/เรียน:</label>
+                         <input type="text" id="customer-contact-person" oninput="updateOutput(currentDocType)">
+                         <label for="customer-address">ที่อยู่:</label>
+                         <textarea id="customer-address" oninput="updateOutput(currentDocType)"></textarea>
+                           <label for="customer-tel">โทร:</label>
+                         <input type="text" id="customer-tel" oninput="updateOutput(currentDocType)">
+                     </div>
+                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h3 class="text-2xl font-bold mb-4 text-[#3357FF]">โภชนาการอัจฉริยะส่วนบุคคล</h3>
-                <p class="text-gray-600 mb-6">บอก Gemini ว่าคุณมีวัตถุดิบอะไร หรือต้องการอาหารแบบไหน แล้ว AI จะสร้างสรรค์เมนูสุขภาพดีเพื่อการฟื้นตัวที่ดีที่สุดสำหรับคุณ</p>
-                
-                <div class="space-y-4 mb-4">
+            <!-- Input Section - Quotation -->
+            <div id="input-quotation" class="input-section active">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">กรอกข้อมูลใบเสนอราคา</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
-                        <label for="ingredients-input" class="block text-sm font-medium text-gray-700 mb-1">วัตถุดิบที่คุณมี (เช่น อกไก่, ไข่, ข้าวกล้อง)</label>
-                        <input type="text" id="ingredients-input" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="ใส่ชื่อวัตถุดิบ คั่นด้วยจุลภาค">
+                        <label for="quotation-number">เลขที่ใบเสนอราคา:</label>
+                        <input type="text" id="quotation-number" value="QT-RSC01-P1" oninput="updateOutput('quotation')">
                     </div>
-                    <div class="flex items-center space-x-4">
-                         <label class="block text-sm font-medium text-gray-700">ความต้องการพิเศษ:</label>
-                        <div class="flex items-center">
-                            <input id="pref-protein" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                            <label for="pref-protein" class="ml-2 block text-sm text-gray-900">เน้นโปรตีนสูง</label>
-                        </div>
-                         <div class="flex items-center">
-                            <input id="pref-veg" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                            <label for="pref-veg" class="ml-2 block text-sm text-gray-900">มังสวิรัติ</label>
-                        </div>
+                    <div>
+                        <label for="quotation-date">วันที่:</label>
+                        <input type="date" id="quotation-date" oninput="updateOutput('quotation')">
+                    </div>
+                    <div>
+                        <label for="quotation-currency">สกุลเงิน:</label>
+                         <select id="quotation-currency" onchange="updateAllCalculations()">
+                             <option value="บาท" selected>บาท (THB)</option>
+                             <option value="USD">ดอลลาร์สหรัฐ (USD)</option>
+                             <option value="EUR">ยูโร (EUR)</option>
+                         </select>
+                    </div>
+                 </div>
+                 <!-- Added Project Name Input -->
+                 <div class="mb-4">
+                     <label for="quotation-project-name">ชื่อโครงการ/งาน:</label>
+                     <input type="text" id="quotation-project-name" placeholder="ระบุชื่อโครงการ หรือชื่องานหลัก" oninput="updateOutput('quotation')">
+                 </div>
+                 <div class="items-container" data-doc-type="quotation"></div>
+                 <button class="btn-secondary mt-2 text-sm" onclick="addItemRow('quotation')">+ เพิ่มรายการ</button>
+                 <div class="mt-4">
+                     <label for="quotation-discount-percent">ส่วนลดรวม (%):</label>
+                     <input type="number" id="quotation-discount-percent" min="0" max="100" step="0.01" value="0" oninput="updateOutput('quotation')" class="w-32">
+                 </div>
+                 <div class="totals-container mt-4 flex justify-end" data-doc-type="quotation"></div>
+                 <div class="notes-terms-container grid grid-cols-1 md:grid-cols-2 gap-4 mt-4" data-doc-type="quotation"></div>
+                 <div class="signatures-container grid grid-cols-1 md:grid-cols-2 gap-4 mt-4" data-doc-type="quotation"></div>
+            </div>
+
+            <!-- Input Section - Invoice -->
+            <div id="input-invoice" class="input-section">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">กรอกข้อมูลใบแจ้งหนี้</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <div>
+                        <label for="invoice-number">เลขที่ใบแจ้งหนี้:</label>
+                        <input type="text" id="invoice-number" value="INV-" oninput="updateOutput('invoice')">
+                    </div>
+                    <div>
+                        <label for="invoice-date">วันที่:</label>
+                        <input type="date" id="invoice-date" oninput="updateOutput('invoice')">
+                    </div>
+                     <div>
+                        <label for="invoice-due-date">กำหนดชำระ:</label>
+                        <input type="date" id="invoice-due-date" oninput="updateOutput('invoice')">
+                    </div>
+                     <div>
+                        <label for="invoice-ref-quotation">อ้างอิงใบเสนอราคา:</label>
+                        <input type="text" id="invoice-ref-quotation" oninput="updateOutput('invoice')">
+                    </div>
+                     <div>
+                        <label for="invoice-currency">สกุลเงิน:</label>
+                         <select id="invoice-currency" onchange="updateAllCalculations()">
+                             <option value="บาท" selected>บาท (THB)</option>
+                             <option value="USD">ดอลลาร์สหรัฐ (USD)</option>
+                             <option value="EUR">ยูโร (EUR)</option>
+                         </select>
+                    </div>
+                 </div>
+                 <!-- Added Project Name Input -->
+                 <div class="mb-4">
+                     <label for="invoice-project-name">ชื่อโครงการ/งาน:</label>
+                     <input type="text" id="invoice-project-name" placeholder="ระบุชื่อโครงการ หรือชื่องานหลัก" oninput="updateOutput('invoice')">
+                 </div>
+                 <div class="items-container" data-doc-type="invoice"></div>
+                 <button class="btn-secondary mt-2 text-sm" onclick="addItemRow('invoice')">+ เพิ่มรายการ</button>
+                 <div class="totals-container mt-4 flex justify-end" data-doc-type="invoice"></div>
+                 <div class="notes-terms-container grid grid-cols-1 md:grid-cols-2 gap-4 mt-4" data-doc-type="invoice"></div>
+                 <div class="signatures-container grid grid-cols-1 md:grid-cols-3 gap-4 mt-4" data-doc-type="invoice"></div>
+            </div>
+
+            <!-- Input Section - Receipt -->
+            <div id="input-receipt" class="input-section">
+                 <h2 class="text-xl font-semibold mb-4 text-gray-700">กรอกข้อมูลใบเสร็จรับเงิน</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <div>
+                        <label for="receipt-number">เลขที่ใบเสร็จ:</label>
+                        <input type="text" id="receipt-number" value="RE-" oninput="updateOutput('receipt')">
+                    </div>
+                    <div>
+                        <label for="receipt-date">วันที่เอกสาร:</label>
+                        <input type="date" id="receipt-date" oninput="updateOutput('receipt')">
+                    </div>
+                     <div>
+                        <label for="receipt-ref-invoice">อ้างอิงใบวางบิล/แจ้งหนี้:</label>
+                        <input type="text" id="receipt-ref-invoice" oninput="updateOutput('receipt')">
+                    </div>
+                     <div>
+                        <label for="receipt-currency">สกุลเงิน:</label>
+                         <select id="receipt-currency" onchange="updateAllCalculations()">
+                             <option value="บาท" selected>บาท (THB)</option>
+                             <option value="USD">ดอลลาร์สหรัฐ (USD)</option>
+                             <option value="EUR">ยูโร (EUR)</option>
+                         </select>
+                    </div>
+                 </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                     <div>
+                        <h3 class="text-md font-medium mb-1 text-gray-600">รายละเอียดการชำระ</h3>
+                         <label>ชำระโดย:</label>
+                         <div class="flex space-x-4 mb-2">
+                             <label class="inline-flex items-center"><input type="radio" name="payment-method" value="เงินสด" class="mr-1 !w-auto !mb-0" onchange="updateOutput('receipt')" checked> เงินสด</label>
+                             <label class="inline-flex items-center"><input type="radio" name="payment-method" value="เช็ค" class="mr-1 !w-auto !mb-0" onchange="updateOutput('receipt')"> เช็ค</label>
+                             <label class="inline-flex items-center"><input type="radio" name="payment-method" value="โอนเงิน" class="mr-1 !w-auto !mb-0" onchange="updateOutput('receipt')"> โอนเงิน</label>
+                             <label class="inline-flex items-center"><input type="radio" name="payment-method" value="อื่นๆ" class="mr-1 !w-auto !mb-0" onchange="updateOutput('receipt')"> อื่นๆ</label>
+                         </div>
+                         <label for="receipt-payment-details">รายละเอียดเช็ค/โอน (ธนาคาร, สาขา, เลขที่, วันที่):</label>
+                         <textarea id="receipt-payment-details" oninput="updateOutput('receipt')"></textarea>
+                     </div>
+                 </div>
+                  <!-- Added Project Name Input -->
+                 <div class="mb-4">
+                     <label for="receipt-project-name">ชื่อโครงการ/งาน:</label>
+                     <input type="text" id="receipt-project-name" placeholder="ระบุชื่อโครงการ หรือชื่องานหลัก" oninput="updateOutput('receipt')">
+                 </div>
+                 <div class="items-container" data-doc-type="receipt"></div>
+                 <button class="btn-secondary mt-2 text-sm" onclick="addItemRow('receipt')">+ เพิ่มรายการ</button>
+                 <div class="totals-container mt-4 flex justify-end" data-doc-type="receipt"></div>
+                 <div class="notes-terms-container grid grid-cols-1 md:grid-cols-2 gap-4 mt-4" data-doc-type="receipt"></div>
+                 <div class="signatures-container grid grid-cols-1 md:grid-cols-3 gap-4 mt-4" data-doc-type="receipt"></div>
+            </div>
+
+             <!-- Input Section - Contract -->
+            <div id="input-contract" class="input-section">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">กรอกข้อมูลสัญญาจ้างงาน</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label for="contract-number">เลขที่สัญญา:</label>
+                        <input type="text" id="contract-number" value="CON-" oninput="updateOutput('contract')">
+                    </div>
+                    <div>
+                        <label for="contract-date">วันที่ทำสัญญา:</label>
+                        <input type="date" id="contract-date" oninput="updateOutput('contract')">
                     </div>
                 </div>
-
-                <button id="meal-suggester-btn" class="gemini-btn w-full md:w-auto">✨ สร้างสรรค์เมนูส่วนตัว</button>
-                <div id="meal-suggester-loader" class="hidden mt-4 mx-auto loader"></div>
-                <div id="meal-suggester-result" class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200 hidden"></div>
+                 <div class="grid grid-cols-1 gap-4 mb-4">
+                     <div>
+                         <label for="contract-scope">รายละเอียดของงาน (Scope of Work):</label>
+                         <textarea id="contract-scope" rows="4" oninput="updateOutput('contract')"></textarea>
+                     </div>
+                     <div>
+                         <label for="contract-timeline">กำหนดส่งงาน / ระยะเวลาทำงาน:</label>
+                         <textarea id="contract-timeline" rows="2" oninput="updateOutput('contract')"></textarea>
+                     </div>
+                     <div>
+                         <label for="contract-payment">ค่าจ้างและเงื่อนไขการชำระเงิน:</label>
+                         <textarea id="contract-payment" rows="3" oninput="updateOutput('contract')"></textarea>
+                     </div>
+                     <div>
+                         <label for="contract-revisions">ข้อกำหนดการแก้ไขงาน:</label>
+                         <textarea id="contract-revisions" rows="2" oninput="updateOutput('contract')"></textarea>
+                     </div>
+                     <div>
+                         <label for="contract-cancellation">เงื่อนไขการยกเลิกสัญญา:</label>
+                         <textarea id="contract-cancellation" rows="2" oninput="updateOutput('contract')"></textarea>
+                     </div>
+                     <div>
+                         <label for="contract-copyright">ลิขสิทธิ์ของงาน:</label>
+                         <textarea id="contract-copyright" rows="2" oninput="updateOutput('contract')"></textarea>
+                     </div>
+                      <div>
+                         <label for="contract-contact">ช่องทางการติดต่อ / ส่งงาน:</label>
+                         <textarea id="contract-contact" rows="2" oninput="updateOutput('contract')"></textarea>
+                     </div>
+                 </div>
+                  <div class="signatures-container grid grid-cols-1 md:grid-cols-2 gap-4 mt-4" data-doc-type="contract"></div>
             </div>
-        </section>
-        
-        <footer class="text-center mt-12 py-6 border-t border-gray-300">
-            <p class="text-gray-600">ขอให้สนุกกับการออกกำลังกายและมีสุขภาพที่แข็งแรง!</p>
-            <p class="text-sm text-gray-500 mt-2">Infographic generated based on your personalized plan.</p>
-        </footer>
+
+            <!-- Input Section - Submission -->
+            <div id="input-submission" class="input-section">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">กรอกข้อมูลใบส่งมอบงาน</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                     <div>
+                        <label for="submission-number">เลขที่เอกสาร:</label>
+                        <input type="text" id="submission-number" value="SUB-" oninput="updateOutput('submission')">
+                    </div>
+                    <div>
+                        <label for="submission-date">วันที่ส่งมอบ:</label>
+                        <input type="date" id="submission-date" oninput="updateOutput('submission')">
+                    </div>
+                     <div>
+                        <label for="submission-project">ชื่อโปรเจกต์ / งานที่เกี่ยวข้อง:</label>
+                        <input type="text" id="submission-project" oninput="updateOutput('submission')">
+                    </div>
+                </div>
+                 <div class="grid grid-cols-1 gap-4 mb-4">
+                     <div>
+                         <label for="submission-items">รายการงานที่ส่ง (ไฟล์, ลิงก์, รายงาน):</label>
+                         <textarea id="submission-items" rows="5" oninput="updateOutput('submission')"></textarea>
+                     </div>
+                     <div>
+                         <label for="submission-notes">หมายเหตุ / คำอธิบายเพิ่มเติม:</label>
+                         <textarea id="submission-notes" rows="3" oninput="updateOutput('submission')"></textarea>
+                     </div>
+                 </div>
+                 <div class="signatures-container grid grid-cols-1 md:grid-cols-2 gap-4 mt-4" data-doc-type="submission"></div>
+            </div>
+
+
+            <!-- Action Buttons -->
+            <div class="action-button-container mt-6 text-center space-x-4">
+                <button id="download-button" onclick="downloadExcel()" class="btn-success">ดาวน์โหลดเป็น Excel (.xlsx)</button>
+                <button onclick="window.print()" class="btn-primary">พิมพ์เอกสาร</button>
+                <button onclick="clearSavedData()" class="btn-danger" title="ลบข้อมูลที่บันทึกไว้ทั้งหมดและรีเซ็ทกลับเป็นค่าเริ่มต้น">🗑️ ล้างข้อมูลที่บันทึก</button>
+            </div>
+             <!-- Download Status Area -->
+            <div id="download-status" class="mt-4 text-center font-medium"></div>
+        </div>
+
+
+        <!-- Output/Preview Section - Quotation -->
+        <div id="output-quotation" class="doc-output active">
+             <div class="output-header grid grid-cols-2 gap-8 mb-8"></div>
+             <div class="output-customer mb-8 p-4 bg-gray-50 rounded border border-gray-200"></div>
+             <table class="table-auto output-table">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+             <div class="output-totals flex justify-end mt-4 mb-4"></div>
+             <div class="output-notes-terms grid grid-cols-1 md:grid-cols-2 gap-8 text-sm mt-8"></div>
+             <div class="output-signatures signature-area grid grid-cols-2 gap-16"></div>
+        </div>
+
+        <!-- Output/Preview Section - Invoice -->
+        <div id="output-invoice" class="doc-output">
+             <div class="output-header grid grid-cols-2 gap-8 mb-8"></div>
+             <div class="output-customer mb-8 p-4 bg-gray-50 rounded border border-gray-200"></div>
+             <table class="table-auto output-table">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+             <div class="output-totals flex justify-end mt-4 mb-4"></div>
+             <div class="output-notes-terms grid grid-cols-1 md:grid-cols-1 gap-8 text-sm mt-8"></div>
+             <div class="output-signatures signature-area grid grid-cols-3 gap-8"></div>
+        </div>
+
+         <!-- Output/Preview Section - Receipt -->
+        <div id="output-receipt" class="doc-output">
+            <div class="output-header grid grid-cols-2 gap-8 mb-8"></div>
+             <div class="output-customer mb-8 p-4 bg-gray-50 rounded border border-gray-200"></div>
+             <table class="table-auto output-table">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+             <div class="output-totals flex justify-end mt-4 mb-4"></div>
+             <div class="output-payment-details grid grid-cols-1 md:grid-cols-2 gap-8 text-sm mt-8 border-t pt-4"></div>
+             <div class="output-notes-terms grid grid-cols-1 md:grid-cols-1 gap-8 text-sm mt-4"></div>
+             <div class="output-signatures signature-area grid grid-cols-3 gap-8"></div>
+        </div>
+
+        <!-- Output/Preview Section - Contract -->
+        <div id="output-contract" class="doc-output">
+            <h2 class="text-2xl font-bold text-center mb-6">สัญญาจ้างงานอิสระ</h2>
+            <div class="grid grid-cols-2 gap-8 mb-6 text-sm">
+                <div>
+                    <p><span class="font-semibold">เลขที่สัญญา:</span> <span class="output-contract-number"></span></p>
+                </div>
+                <div class="text-right">
+                    <p><span class="font-semibold">วันที่ทำสัญญา:</span> <span class="output-contract-date"></span></p>
+                </div>
+            </div>
+             <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div class="p-4 border rounded">
+                    <h3 class="font-semibold mb-2">ผู้ว่าจ้าง</h3>
+                    <p class="font-medium output-customer-company"></p>
+                    <p class="text-gray-600 output-customer-tax-id"></p>
+                    <p class="text-gray-600 whitespace-pre-wrap output-customer-address"></p>
+                    <p class="text-gray-600 output-customer-contact-person"></p>
+                     <p class="text-gray-600 output-customer-tel"></p>
+                </div>
+                 <div class="p-4 border rounded">
+                    <h3 class="font-semibold mb-2">ผู้รับจ้าง</h3>
+                    <p class="font-medium output-your-company"></p>
+                    <p class="text-gray-600 output-your-tax-id"></p>
+                    <p class="text-gray-600 whitespace-pre-wrap output-your-address"></p>
+                    <p class="text-gray-600 output-your-contact"></p>
+                </div>
+            </div>
+
+            <div class="contract-section">
+                <h3 class="font-semibold text-lg mb-2">1. รายละเอียดของงาน (Scope of Work)</h3>
+                <p class="text-sm whitespace-pre-wrap output-contract-scope"></p>
+            </div>
+            <div class="contract-section">
+                <h3 class="font-semibold text-lg mb-2">2. กำหนดส่งงาน / ระยะเวลาทำงาน</h3>
+                <p class="text-sm whitespace-pre-wrap output-contract-timeline"></p>
+            </div>
+             <div class="contract-section">
+                <h3 class="font-semibold text-lg mb-2">3. ค่าจ้างและเงื่อนไขการชำระเงิน</h3>
+                <p class="text-sm whitespace-pre-wrap output-contract-payment"></p>
+            </div>
+            <div class="contract-section">
+                <h3 class="font-semibold text-lg mb-2">4. ข้อกำหนดการแก้ไขงาน</h3>
+                <p class="text-sm whitespace-pre-wrap output-contract-revisions"></p>
+            </div>
+             <div class="contract-section">
+                <h3 class="font-semibold text-lg mb-2">5. เงื่อนไขการยกเลิกสัญญา</h3>
+                <p class="text-sm whitespace-pre-wrap output-contract-cancellation"></p>
+            </div>
+             <div class="contract-section">
+                <h3 class="font-semibold text-lg mb-2">6. ลิขสิทธิ์ของงาน</h3>
+                <p class="text-sm whitespace-pre-wrap output-contract-copyright"></p>
+            </div>
+             <div class="contract-section">
+                <h3 class="font-semibold text-lg mb-2">7. ช่องทางการติดต่อ / ส่งงาน</h3>
+                <p class="text-sm whitespace-pre-wrap output-contract-contact"></p>
+            </div>
+
+             <div class="output-signatures signature-area grid grid-cols-2 gap-16 mt-8">
+                  <div class="text-center">
+                     <p>ลงชื่อ ผู้ว่าจ้าง</p>
+                     <div class="signature-box mt-12">( <span class="output-contract-client-name"></span> )</div>
+                     <p>วันที่: ...........................................</p> <!-- Blank Date -->
+                 </div>
+                 <div class="text-center">
+                     <p>ลงชื่อ ผู้รับจ้าง</p>
+                    <div class="signature-box mt-12">( <span class="output-contract-freelancer-name"></span> )</div>
+                     <p>วันที่: <span class="output-contract-signed-date"></span></p>
+                 </div>
+             </div>
+        </div>
+
+        <!-- Output/Preview Section - Submission -->
+        <div id="output-submission" class="doc-output">
+             <div class="output-header grid grid-cols-2 gap-8 mb-8"></div>
+             <h2 class="text-2xl font-bold text-center mb-4">ใบส่งมอบงาน</h2>
+             <div class="grid grid-cols-2 gap-8 mb-6 text-sm">
+                 <div>
+                    <p><span class="font-semibold">เลขที่เอกสาร:</span> <span class="output-submission-number"></span></p>
+                    <p><span class="font-semibold">โปรเจกต์:</span> <span class="output-submission-project"></span></p>
+                </div>
+                <div class="text-right">
+                    <p><span class="font-semibold">วันที่ส่งมอบ:</span> <span class="output-submission-date"></span></p>
+                </div>
+             </div>
+              <div class="output-customer mb-6 p-4 bg-gray-50 rounded border border-gray-200 text-sm"></div>
+
+              <div>
+                 <h3 class="font-semibold text-lg mb-2">รายการงานที่ส่งมอบ:</h3>
+                 <div class="text-sm whitespace-pre-wrap border p-4 rounded output-submission-items bg-white"></div>
+              </div>
+
+               <div class="mt-4">
+                 <h3 class="font-semibold text-lg mb-2">หมายเหตุ:</h3>
+                 <p class="text-sm whitespace-pre-wrap output-submission-notes"></p>
+              </div>
+
+             <div class="output-signatures signature-area grid grid-cols-2 gap-16 mt-8">
+                 <div class="text-center">
+                     <p>ผู้ส่งมอบงาน</p>
+                    <div class="signature-box mt-12">( <span class="output-submission-submitter-name"></span> )</div>
+                     <p>วันที่: <span class="output-submission-submit-date"></span></p>
+                 </div>
+                  <div class="text-center">
+                     <p>ผู้รับมอบงาน</p>
+                     <div class="signature-box mt-12">( <span class="output-submission-receiver-name"></span> )</div>
+                     <p>วันที่: ...........................................</p> <!-- Blank Date -->
+                 </div>
+            </div>
+        </div>
+
 
     </div>
 
     <script>
-        const FONT_COLOR = '#374151';
-        const GRID_COLOR = '#e5e7eb';
-        
-        const wrapLabel = (label) => {
-            const maxLength = 16;
-            if (label.length <= maxLength) return label;
-            
-            const words = label.split(' ');
-            const lines = [];
-            let currentLine = '';
-            
-            words.forEach(word => {
-                if ((currentLine + ' ' + word).trim().length > maxLength) {
-                    lines.push(currentLine.trim());
-                    currentLine = word;
-                } else {
-                    currentLine = (currentLine + ' ' + word).trim();
-                }
-            });
-            if (currentLine) lines.push(currentLine.trim());
-            
-            return lines;
-        };
-        
-        const tooltipTitleCallback = (tooltipItems) => {
-            const item = tooltipItems[0];
-            let label = item.chart.data.labels[item.dataIndex];
-            return Array.isArray(label) ? label.join(' ') : label;
-        };
+        let currentDocType = 'quotation';
+        const currencySymbolMap = { 'บาท': 'บาท', 'USD': '$', 'EUR': '€' };
 
-        const SHARED_CHART_OPTIONS = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: FONT_COLOR,
-                        font: {
-                            family: "'Kanit', sans-serif",
-                            size: 14
-                        }
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        title: tooltipTitleCallback
-                    },
-                    titleFont: {
-                        family: "'Kanit', sans-serif",
-                    },
-                    bodyFont: {
-                         family: "'Kanit', sans-serif",
-                    }
-                }
+        // --- Utility Functions (formatCurrency, bahtText, formatDateThai) ---
+         function formatCurrency(number, currencyCode = 'บาท') {
+            if (isNaN(number) || number === null) return '0.00';
+            const numStr = parseFloat(number).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+            // Append currency unit for all cases now
+            return `${numStr} ${currencySymbolMap[currencyCode] || currencyCode}`;
+        }
+
+        function bahtText(number) {
+             number = Number(number);
+            if (isNaN(number) || number === 0) return "ศูนย์บาทถ้วน";
+
+            number = number.toFixed(2);
+            let [baht, satang] = number.split('.');
+            baht = BigInt(baht);
+
+            const txtNumArr = ["", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า", "สิบ"];
+            const txtDigitArr = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
+            let bahtText = "";
+
+            if (baht === 0n) {}
+             else if (baht < 0n) { bahtText = "ลบ"; baht = -baht; }
+
+            const bahtStr = baht.toString();
+            const bahtLen = bahtStr.length;
+
+            for (let i = 0; i < bahtLen; i++) {
+                const digit = BigInt(bahtStr[i]);
+                if (digit === 0n) continue;
+                const position = bahtLen - 1 - i;
+                const digitPosition = position % 6;
+                const millionPosition = Math.floor(position / 6);
+                let digitWord = txtNumArr[Number(digit)];
+                if (digitPosition === 1 && digit === 2n) digitWord = "ยี่";
+                if (digitPosition === 1 && digit === 1n) digitWord = "";
+                if (position > 0 && digitPosition === 0 && digit === 1n && (bahtLen > 1 && bahtStr[i-1] !== '0')) digitWord = "เอ็ด";
+                if (digitPosition === 0 && digit === 1n && bahtLen === 1) digitWord = "หนึ่ง";
+                bahtText += digitWord + (digitPosition > 0 ? txtDigitArr[digitPosition] : "");
+                if (millionPosition > 0 && digitPosition === 0) bahtText += txtDigitArr[6];
             }
-        };
+            bahtText = bahtText.replace(/หนึ่งสิบ(?=($|ล้าน))/g, 'สิบ');
+            bahtText += "บาท";
 
-        const WORKOUT_A_COLORS = ['#3b82f6', '#10b981', '#ef4444', '#f59e0b'];
-        const workoutAData = {
-            labels: ['ส่วนขา (Legs)', 'ส่วนดึง (Pull)', 'ส่วนผลัก (Push)', 'แกนกลาง (Core)'],
-            datasets: [{
-                label: 'สัดส่วนการโฟกัส',
-                data: [30, 25, 25, 20],
-                backgroundColor: WORKOUT_A_COLORS,
-                borderColor: '#ffffff',
-                borderWidth: 2
-            }]
-        };
-        new Chart(document.getElementById('workoutAChart'), {
-            type: 'doughnut',
-            data: workoutAData,
-            options: { ...SHARED_CHART_OPTIONS,
-                plugins: { ...SHARED_CHART_OPTIONS.plugins,
-                    title: {
-                        display: true,
-                        text: 'Month 1: Full Body Focus Distribution',
-                        color: FONT_COLOR,
-                        font: { size: 16, family: "'Kanit', sans-serif" }
-                    }
+            if (satang && Number(satang) > 0) {
+                satang = Number(satang);
+                let satangText = "";
+                const satangStr = satang.toString().padStart(2, '0');
+                const tenDigit = Number(satangStr[0]);
+                const unitDigit = Number(satangStr[1]);
+                if(tenDigit > 0) {
+                    satangText += (tenDigit === 2 ? "ยี่" : (tenDigit === 1 ? "" : txtNumArr[tenDigit])) + txtDigitArr[1];
                 }
-            }
-        });
-
-        const WORKOUT_B_COLORS = ['#fb923c', '#a78bfa'];
-        const workoutBData = {
-            labels: ['Upper Body Days (2)', 'Lower Body Days (1)'],
-            datasets: [{
-                label: 'Total Weekly Sets',
-                data: [30, 15],
-                backgroundColor: WORKOUT_B_COLORS,
-                borderRadius: 4
-            }]
-        };
-        new Chart(document.getElementById('workoutBChart'), {
-            type: 'bar',
-            data: workoutBData,
-            options: {
-                ...SHARED_CHART_OPTIONS,
-                scales: {
-                    x: {
-                        ticks: { color: FONT_COLOR, font: { family: "'Kanit', sans-serif" } },
-                        grid: { display: false }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        ticks: { color: FONT_COLOR, font: { family: "'Kanit', sans-serif" } },
-                        grid: { color: GRID_COLOR }
-                    }
-                },
-                plugins: { ...SHARED_CHART_OPTIONS.plugins,
-                    title: {
-                        display: true,
-                        text: 'Month 2: Estimated Weekly Volume Split',
-                        color: FONT_COLOR,
-                        font: { size: 16, family: "'Kanit', sans-serif" }
-                    },
-                     legend: { display: false }
+                if(unitDigit > 0) {
+                     satangText += (unitDigit === 1 && tenDigit > 0) ? "เอ็ด" : txtNumArr[unitDigit];
                 }
-            }
-        });
-        
-        new Chart(document.getElementById('progressionChart'), {
-            type: 'line',
-            data: {
-                labels: ['Start', 'Month 1 End', 'Month 2 End', 'Month 3 End'],
-                datasets: [{
-                    label: 'ระดับความแข็งแรงโดยประมาณ',
-                    data: [1, 2.5, 4, 5.5],
-                    fill: true,
-                    backgroundColor: 'rgba(51, 87, 255, 0.2)',
-                    borderColor: '#3357FF',
-                    tension: 0.3,
-                    pointBackgroundColor: '#3357FF',
-                    pointRadius: 5
-                }]
-            },
-            options: {
-                ...SHARED_CHART_OPTIONS,
-                scales: {
-                     x: {
-                        ticks: { color: FONT_COLOR, font: { family: "'Kanit', sans-serif" } },
-                        grid: { display: false }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        ticks: { color: FONT_COLOR, font: { family: "'Kanit', sans-serif" } },
-                        grid: { color: GRID_COLOR }
-                    }
-                },
-                plugins: { ...SHARED_CHART_OPTIONS.plugins,
-                    title: {
-                        display: true,
-                        text: 'แนวโน้มการพัฒนาความแข็งแรง (Progressive Overload)',
-                        color: FONT_COLOR,
-                        font: { size: 16, family: "'Kanit', sans-serif" }
-                    },
-                     legend: { display: false }
-                }
-            }
-        });
+                bahtText += satangText + "สตางค์";
+            } else { bahtText += "ถ้วน"; }
+            return bahtText;
+        }
 
-        const apiKey = ""; 
-        const textApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-        const imageApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+        function formatDateThai(dateString) {
+            if (!dateString) return '';
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return '';
+                const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+                return `${date.getDate()} ${thaiMonths[date.getMonth()]} ${date.getFullYear() + 543}`;
+            } catch (e) { console.error("Error formatting date:", e); return ''; }
+        }
 
-        const mealSuggestionSchema = {
-            type: "OBJECT",
-            properties: {
-                "title": { "type": "STRING" },
-                "description": { "type": "STRING" },
-                "ingredients": {
-                    "type": "ARRAY",
-                    "items": {
-                        "type": "OBJECT",
-                        "properties": {
-                            "name": { "type": "STRING" },
-                            "quantity": { "type": "STRING" }
-                        },
-                        "required": ["name", "quantity"]
-                    }
-                },
-                "instructions": {
-                    "type": "ARRAY",
-                    "items": { "type": "STRING" }
-                }
-            },
-            "required": ["title", "description", "ingredients", "instructions"]
-        };
-
-        function renderMealSuggestion(meal) {
-            let ingredientsHtml = meal.ingredients.map(i => `
-                <li class="flex items-center">
-                    <span class="font-semibold text-blue-800 mr-2">›</span>
-                    <span><strong>${i.name}:</strong> ${i.quantity}</span>
-                </li>
-            `).join('');
-
-            let instructionsHtml = meal.instructions.map(step => `
-                <li class="flex">
-                    <span class="mr-2 text-blue-800 font-bold"></span>
-                    <span>${step}</span>
-                </li>
-            `).join('');
-
+        // --- Item Row Management (generateItemRowHTML, addItemRow, removeItemRow, addEventListenersToRow) ---
+         // Updated Item Row HTML to include Quantity label clearly
+         function generateItemRowHTML(docType) {
             return `
-                <div class="space-y-4 text-left">
-                    <h4 class="text-xl font-bold text-gray-800">${meal.title}</h4>
-                    <p class="text-gray-600">${meal.description}</p>
-                    <div>
-                        <h5 class="font-semibold mb-2 text-lg">ส่วนผสม:</h5>
-                        <ul class="space-y-2 pl-2">${ingredientsHtml}</ul>
-                    </div>
-                    <div>
-                        <h5 class="font-semibold mb-2 text-lg">วิธีทำ:</h5>
-                        <ol class="space-y-2 list-decimal list-inside">${instructionsHtml}</ol>
-                    </div>
-                </div>
-            `;
+                <div class="item-row grid grid-cols-12 gap-2 mb-2 items-center border-b pb-2">
+                    <div class="col-span-12 md:col-span-4"><label class="text-xs">รายละเอียด</label><input type="text" class="item-description" placeholder="บริการ/สินค้า..." oninput="updateOutput('${docType}')"></div>
+                    <div class="col-span-4 md:col-span-1"><label class="text-xs">จำนวน</label><input type="number" class="item-quantity" placeholder="1" step="any" min="0" value="1" oninput="calculateRowTotal(this); updateOutput('${docType}')"></div>
+                    <div class="col-span-4 md:col-span-1"><label class="text-xs">หน่วย</label><input type="text" class="item-unit" placeholder="งาน" oninput="updateOutput('${docType}')"></div>
+                    <div class="col-span-4 md:col-span-2"><label class="text-xs">ราคา/หน่วย</label><input type="number" class="item-price" placeholder="0.00" step="0.01" min="0" oninput="calculateRowTotal(this); updateOutput('${docType}')"></div>
+                     <div class="col-span-4 md:col-span-2"><label class="text-xs">ส่วนลด</label><input type="number" class="item-discount" placeholder="0.00" step="0.01" min="0" oninput="calculateRowTotal(this); updateOutput('${docType}')"></div>
+                    <div class="col-span-6 md:col-span-1"><label class="text-xs">รวม</label><span class="item-total text-right block pt-6 pr-1 text-sm">0.00 บาท</span></div>
+                    <div class="col-span-6 md:col-span-1 flex items-end justify-center pb-2"><button class="btn-danger text-xs py-1 px-2 remove-item-btn">ลบ</button></div>
+                </div>`;
         }
 
-        async function callGeminiForMealSuggestion(prompt, button, loader, resultContainer, retryCount = 3, delay = 1000) {
-            button.disabled = true;
-            loader.classList.remove('hidden');
-            resultContainer.classList.add('hidden');
-            resultContainer.innerHTML = '';
-            
-            const payload = { 
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: mealSuggestionSchema
-                }
+        // Function to add event listeners to a specific item row
+        function addEventListenersToRow(rowElement) {
+             const docType = rowElement.closest('.input-section')?.id.replace('input-', '') || currentDocType;
+             rowElement.querySelectorAll('.item-quantity, .item-price, .item-discount').forEach(input => {
+                 input.addEventListener('input', () => calculateRowTotal(input));
+             });
+             rowElement.querySelectorAll('.item-description, .item-unit').forEach(input => {
+                 input.addEventListener('input', () => updateOutput(docType));
+             });
+             const removeBtn = rowElement.querySelector('.remove-item-btn');
+             if (removeBtn && !removeBtn.getAttribute('data-listener-added')) {
+                 removeBtn.addEventListener('click', () => removeItemRow(removeBtn));
+                 removeBtn.setAttribute('data-listener-added', 'true');
+             }
+        }
+
+
+        function addItemRow(docType) {
+             if (docType === 'contract' || docType === 'submission') return;
+            const itemList = document.querySelector(`#input-${docType} .items-container`);
+            itemList.insertAdjacentHTML('beforeend', generateItemRowHTML(docType));
+            const newRow = itemList.lastElementChild;
+            addEventListenersToRow(newRow); // Use the new function here
+            updateOutput(docType);
+            saveFormData(); // Auto-save when adding row
+        }
+
+        function removeItemRow(button) {
+             if (!button) return;
+             const row = button.closest('.item-row'); if (!row) return;
+             const container = row.parentElement; if (!container) return;
+             const inputSection = container.closest('.input-section'); if (!inputSection) return;
+             const docType = inputSection.id.replace('input-', '');
+
+             if (container.querySelectorAll('.item-row').length > 1) { row.remove(); }
+             else {
+                 row.querySelectorAll('input').forEach(input => {
+                     if (input.classList.contains('item-quantity')) input.value = '1';
+                     else if (input.type === 'number') input.value = '';
+                     else input.value = '';
+                 });
+                 const currencyCode = document.getElementById(`${docType}-currency`)?.value || 'บาท';
+                 row.querySelector('.item-total').textContent = formatCurrency(0, currencyCode);
+             }
+             calculateDocTotals(docType); updateOutput(docType); saveFormData();
+        }
+
+        // --- Calculation Functions (calculateRowTotal, calculateDocTotals, updateAllCalculations) ---
+         function calculateRowTotal(inputElement) {
+            const row = inputElement.closest('.item-row'); if (!row) return;
+            const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+            const price = parseFloat(row.querySelector('.item-price').value) || 0;
+            const discount = parseFloat(row.querySelector('.item-discount').value) || 0;
+            const total = (price * quantity) - discount;
+             const currencyCode = document.getElementById(`${currentDocType}-currency`)?.value || 'บาท';
+            const itemTotalEl = row.querySelector('.item-total');
+            if (itemTotalEl) itemTotalEl.textContent = formatCurrency(total, currencyCode);
+            calculateDocTotals(currentDocType);
+        }
+
+        function calculateDocTotals(docType) {
+            if (docType === 'contract' || docType === 'submission') return;
+            let subTotal = 0;
+            const currencyCode = document.getElementById(`${docType}-currency`)?.value || 'บาท';
+            const container = document.querySelector(`#input-${docType}`); if (!container) return;
+            container.querySelectorAll('.item-row').forEach(row => {
+                const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                const discount = parseFloat(row.querySelector('.item-discount').value) || 0;
+                subTotal += (price * quantity) - discount;
+            });
+
+            // คำนวณส่วนลดรวมสำหรับใบเสนอราคา
+            let totalDiscount = 0;
+            let netTotal = subTotal;
+            if (docType === 'quotation') {
+                const discountPercent = parseFloat(document.getElementById('quotation-discount-percent')?.value) || 0;
+                totalDiscount = (subTotal * discountPercent) / 100;
+                netTotal = subTotal - totalDiscount;
+            }
+
+            const totalsContainer = container.querySelector('.totals-container'); if (!totalsContainer) return;
+            const grandTotalEl = totalsContainer.querySelector('.grand-total'); // Represents Subtotal
+            const discountEl = totalsContainer.querySelector('.total-discount'); // Discount amount
+            const netTotalEl = totalsContainer.querySelector('.net-total');
+            const totalWordsEl = totalsContainer.querySelector('.total-in-words');
+
+            if(grandTotalEl) grandTotalEl.textContent = formatCurrency(subTotal, currencyCode);
+            if(discountEl) discountEl.textContent = formatCurrency(totalDiscount, currencyCode);
+            if(netTotalEl) netTotalEl.textContent = formatCurrency(netTotal, currencyCode);
+            if(totalWordsEl) totalWordsEl.textContent = (currencyCode === 'บาท') ? `(${bahtText(netTotal)})` : '';
+        }
+
+
+        function updateAllCalculations() {
+            calculateDocTotals('quotation'); calculateDocTotals('invoice'); calculateDocTotals('receipt');
+            updateOutput(currentDocType);
+        }
+
+        // --- localStorage Functions for Data Persistence ---
+        function saveFormData() {
+            const formData = {
+                // Common data
+                yourCompany: document.getElementById('your-company').value,
+                yourTaxId: document.getElementById('your-tax-id').value,
+                yourAddress: document.getElementById('your-address').value,
+                yourContact: document.getElementById('your-contact').value,
+                customerCompany: document.getElementById('customer-company').value,
+                customerTaxId: document.getElementById('customer-tax-id').value,
+                customerContactPerson: document.getElementById('customer-contact-person').value,
+                customerAddress: document.getElementById('customer-address').value,
+                customerTel: document.getElementById('customer-tel').value,
+                
+                // Document-specific data
+                quotation: collectDocumentData('quotation'),
+                invoice: collectDocumentData('invoice'),
+                receipt: collectDocumentData('receipt'),
+                contract: collectDocumentData('contract'),
+                submission: collectDocumentData('submission')
             };
-
+            
             try {
-                const response = await fetch(textApiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                   if (response.status === 429 && retryCount > 0) {
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        return callGeminiForMealSuggestion(prompt, button, loader, resultContainer, retryCount - 1, delay * 2);
-                    }
-                    throw new Error(`API error: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                
-                if (jsonText) {
-                    const mealData = JSON.parse(jsonText);
-                    resultContainer.innerHTML = renderMealSuggestion(mealData);
-                } else {
-                    resultContainer.innerText = 'ขออภัย ไม่สามารถดึงข้อมูลได้ในขณะนี้';
-                }
-            } catch (error) {
-                 resultContainer.innerText = 'เกิดข้อผิดพลาดในการประมวลผลข้อมูล กรุณาลองใหม่อีกครั้ง';
-            } finally {
-                button.disabled = false;
-                loader.classList.add('hidden');
-                resultContainer.classList.remove('hidden');
+                localStorage.setItem('freelanceDocData', JSON.stringify(formData));
+            } catch (e) {
+                console.warn('ไม่สามารถบันทึกข้อมูลได้:', e);
             }
         }
 
-
-        async function generateExerciseImage(exercise, button, loader, resultContainer, retryCount = 3, delay = 1000) {
-            button.disabled = true;
-            loader.classList.remove('hidden');
-            resultContainer.classList.add('hidden');
-            resultContainer.innerHTML = '';
-
-            const prompt = `A clear, minimalist, instructional diagram showing the correct form for the '${exercise}' exercise. Anatomical or stick figure style. White background, simple lines, showing start and end positions.`;
-
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    responseModalities: ['IMAGE']
-                },
-            };
-
-            try {
-                const response = await fetch(imageApiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    if (response.status === 429 && retryCount > 0) {
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        return generateExerciseImage(exercise, button, loader, resultContainer, retryCount - 1, delay * 2);
+        function collectDocumentData(docType) {
+            const inputSection = document.getElementById(`input-${docType}`);
+            if (!inputSection) return null;
+            
+            const data = {};
+            
+            // Collect all input, textarea, and select values
+            inputSection.querySelectorAll('input, textarea, select').forEach(el => {
+                if (el.id) {
+                    if (el.type === 'checkbox' || el.type === 'radio') {
+                        data[el.id] = el.checked;
+                    } else {
+                        data[el.id] = el.value;
                     }
-                    throw new Error(`API error: ${response.status}`);
+                } else if (el.className) {
+                    // Save by class name for dynamically generated inputs
+                    const key = el.className.split(' ')[0];
+                    if (!data[key]) data[key] = [];
+                    data[key].push(el.value);
                 }
+            });
+            
+            // Collect item rows for quotation, invoice, receipt
+            if (['quotation', 'invoice', 'receipt'].includes(docType)) {
+                const items = [];
+                inputSection.querySelectorAll('.item-row').forEach(row => {
+                    items.push({
+                        description: row.querySelector('.item-description')?.value || '',
+                        quantity: row.querySelector('.item-quantity')?.value || '1',
+                        unit: row.querySelector('.item-unit')?.value || '',
+                        price: row.querySelector('.item-price')?.value || '',
+                        discount: row.querySelector('.item-discount')?.value || '0'
+                    });
+                });
+                data.items = items;
+            }
+            
+            return data;
+        }
 
-                const result = await response.json();
-                const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+        function loadFormData() {
+            try {
+                const savedData = localStorage.getItem('freelanceDocData');
+                if (!savedData) return;
                 
-                if (base64Data) {
-                    const imageUrl = `data:image/png;base64,${base64Data}`;
-                    resultContainer.innerHTML = `<img src="${imageUrl}" alt="Demonstration of ${exercise}" class="w-full rounded-lg shadow-md border">`;
-                } else {
-                     resultContainer.innerText = 'ขออภัย ไม่สามารถสร้างภาพได้ในขณะนี้';
-                }
-            } catch (error) {
-                resultContainer.innerText = 'เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง';
-            } finally {
-                button.disabled = false;
-                loader.classList.add('hidden');
-                resultContainer.classList.remove('hidden');
+                const formData = JSON.parse(savedData);
+                
+                // Restore common data
+                if (formData.yourCompany) document.getElementById('your-company').value = formData.yourCompany;
+                if (formData.yourTaxId) document.getElementById('your-tax-id').value = formData.yourTaxId;
+                if (formData.yourAddress) document.getElementById('your-address').value = formData.yourAddress;
+                if (formData.yourContact) document.getElementById('your-contact').value = formData.yourContact;
+                if (formData.customerCompany) document.getElementById('customer-company').value = formData.customerCompany;
+                if (formData.customerTaxId) document.getElementById('customer-tax-id').value = formData.customerTaxId;
+                if (formData.customerContactPerson) document.getElementById('customer-contact-person').value = formData.customerContactPerson;
+                if (formData.customerAddress) document.getElementById('customer-address').value = formData.customerAddress;
+                if (formData.customerTel) document.getElementById('customer-tel').value = formData.customerTel;
+                
+                // Restore document-specific data
+                ['quotation', 'invoice', 'receipt', 'contract', 'submission'].forEach(docType => {
+                    if (formData[docType]) {
+                        restoreDocumentData(docType, formData[docType]);
+                    }
+                });
+                
+            } catch (e) {
+                console.warn('ไม่สามารถโหลดข้อมูลที่บันทึกไว้ได้:', e);
             }
         }
-        
-        const allExercises = [
-            'Bodyweight Squat', 'Ring Rows', 'Ring Push-ups', 'Glute Bridge', 'Plank',
-            'Lunges', 'Assisted Chin-ups', 'Shoulder Push-up', 'Hanging Knee Raises', 'Ring Face Pulls',
-            'Split Squat', 'Ring Bicep Curl', 'Goblet Squat', 'Ring Dips', 'Bulgarian Push-ups',
-            'Tricep Extensions', 'Wide Pull-ups', 'Archer Rows', 'Pistol Squat Progressions', 'Nordic Ham Curls', 'L-Sit'
-        ];
-        const uniqueExercises = [...new Set(allExercises)];
 
-        const exerciseListContainer = document.getElementById('exercise-explainer-list');
-        uniqueExercises.forEach(exercise => {
-            const exerciseDiv = document.createElement('div');
-            exerciseDiv.className = 'p-4 border rounded-lg';
+        function restoreDocumentData(docType, data) {
+            const inputSection = document.getElementById(`input-${docType}`);
+            if (!inputSection || !data) return;
             
-            const headerDiv = document.createElement('div');
-            headerDiv.className = 'flex justify-between items-center';
-            
-            const nameP = document.createElement('p');
-            nameP.className = 'font-semibold';
-            nameP.textContent = exercise;
-            
-            const button = document.createElement('button');
-            button.className = 'gemini-btn';
-            button.textContent = '🎨 สร้างภาพสาธิต';
-            
-            headerDiv.appendChild(nameP);
-            headerDiv.appendChild(button);
-
-            const loader = document.createElement('div');
-            loader.className = 'hidden mt-4 mx-auto loader';
-            
-            const resultDiv = document.createElement('div');
-            resultDiv.className = 'mt-4 text-gray-700 hidden';
-
-            exerciseDiv.appendChild(headerDiv);
-            exerciseDiv.appendChild(loader);
-            exerciseDiv.appendChild(resultDiv);
-            
-            exerciseListContainer.appendChild(exerciseDiv);
-
-            button.addEventListener('click', () => {
-                generateExerciseImage(exercise, button, loader, resultDiv);
+            // Restore simple inputs
+            Object.keys(data).forEach(key => {
+                if (key === 'items') return; // Handle items separately
+                
+                const el = document.getElementById(key);
+                if (el) {
+                    if (el.type === 'checkbox' || el.type === 'radio') {
+                        el.checked = data[key];
+                    } else {
+                        el.value = data[key];
+                    }
+                }
             });
-        });
-        
-        const mealSuggesterBtn = document.getElementById('meal-suggester-btn');
-        const mealSuggesterLoader = document.getElementById('meal-suggester-loader');
-        const mealSuggesterResult = document.getElementById('meal-suggester-result');
-
-        mealSuggesterBtn.addEventListener('click', () => {
-            const ingredients = document.getElementById('ingredients-input').value.trim();
-            const isHighProtein = document.getElementById('pref-protein').checked;
-            const isVegetarian = document.getElementById('pref-veg').checked;
-
-            let prompt = 'ช่วยแนะนำเมนูอาหารหลังออกกำลังกาย 1 เมนูที่ทำง่ายและดีต่อสุขภาพ ';
-            if (isHighProtein) prompt += 'โดยเน้นโปรตีนสูงเป็นพิเศษ ';
-            if (isVegetarian) prompt += 'และต้องเป็นเมนูมังสวิรัติ ';
-            if (ingredients) prompt += `โดยพยายามใช้ส่วนผสมที่มีอยู่คือ: ${ingredients} `;
             
-            prompt += 'บอกชื่อเมนู คำอธิบายสั้นๆ ส่วนผสม และวิธีทำอย่างละเอียดในภาษาไทย';
+            // Restore item rows
+            if (data.items && data.items.length > 0) {
+                const itemsContainer = inputSection.querySelector('.items-container');
+                if (itemsContainer) {
+                    // Clear existing rows
+                    itemsContainer.innerHTML = '';
+                    
+                    // Add saved items
+                    data.items.forEach((item, index) => {
+                        if (index > 0) addItemRow(docType); // First row already exists
+                        else itemsContainer.innerHTML = generateItemRowHTML(docType);
+                        
+                        const row = itemsContainer.children[itemsContainer.children.length - 1];
+                        if (row) {
+                            const descEl = row.querySelector('.item-description');
+                            const qtyEl = row.querySelector('.item-quantity');
+                            const unitEl = row.querySelector('.item-unit');
+                            const priceEl = row.querySelector('.item-price');
+                            const discEl = row.querySelector('.item-discount');
+                            
+                            if (descEl) descEl.value = item.description;
+                            if (qtyEl) qtyEl.value = item.quantity;
+                            if (unitEl) unitEl.value = item.unit;
+                            if (priceEl) priceEl.value = item.price;
+                            if (discEl) discEl.value = item.discount;
+                            
+                            addEventListenersToRow(row);
+                            if (qtyEl) calculateRowTotal(qtyEl);
+                        }
+                    });
+                }
+            }
+        }
+
+        function clearSavedData() {
+            if (confirm('คุณต้องการลบข้อมูลที่บันทึกไว้ทั้งหมดหรือไม่?')) {
+                localStorage.removeItem('freelanceDocData');
+                location.reload();
+            }
+        }
+
+        // --- Update Output Functions (updateCommonOutput, updateOutput) ---
+         function updateCommonOutput(outputSection) {
+             // Removed Logo update
+             const yourCompanyEl = outputSection.querySelector('.output-your-company');
+             const yourTaxIdEl = outputSection.querySelector('.output-your-tax-id');
+             const yourAddressEl = outputSection.querySelector('.output-your-address');
+             const yourContactEl = outputSection.querySelector('.output-your-contact');
+             const customerCompanyEl = outputSection.querySelector('.output-customer-company');
+             const customerTaxIdEl = outputSection.querySelector('.output-customer-tax-id');
+             const customerContactEl = outputSection.querySelector('.output-customer-contact-person');
+             const customerAddressEl = outputSection.querySelector('.output-customer-address');
+             const customerTelEl = outputSection.querySelector('.output-customer-tel');
+
+             if(yourCompanyEl) yourCompanyEl.textContent = document.getElementById('your-company').value;
+             if(yourTaxIdEl) yourTaxIdEl.textContent = document.getElementById('your-tax-id').value ? `เลขประจำตัวผู้เสียภาษี: ${document.getElementById('your-tax-id').value}`: '';
+             if(yourAddressEl) yourAddressEl.textContent = document.getElementById('your-address').value;
+             if(yourContactEl) yourContactEl.textContent = document.getElementById('your-contact').value;
+             if(customerCompanyEl) customerCompanyEl.textContent = document.getElementById('customer-company').value;
+             if(customerTaxIdEl) customerTaxIdEl.textContent = document.getElementById('customer-tax-id').value ? `เลขประจำตัวผู้เสียภาษี: ${document.getElementById('customer-tax-id').value}`: '';
+             if(customerContactEl) customerContactEl.textContent = document.getElementById('customer-contact-person').value ? `เรียน: ${document.getElementById('customer-contact-person').value}` : '';
+             if(customerAddressEl) customerAddressEl.textContent = document.getElementById('customer-address').value;
+             if(customerTelEl) customerTelEl.textContent = document.getElementById('customer-tel').value ? `โทร: ${document.getElementById('customer-tel').value}` : '';
+        }
+
+         function updateOutput(docType) {
+             const inputSection = document.getElementById(`input-${docType}`);
+             const outputSection = document.getElementById(`output-${docType}`);
+             if (!inputSection || !outputSection) return;
+             
+             // Auto-save when output is updated
+             if (typeof saveFormData === 'function') {
+                 saveFormData();
+             }
+             let currencyCode = 'บาท'; let docTitle = ''; let docNumber = ''; let docDate = '';
+             let dueDate = ''; let refQuotation = ''; let refInvoice = ''; let projectName = '';
+             let rawConDate = ''; let rawSubDate = '';
+             const currencySelect = document.getElementById(`${docType}-currency`);
+             if (currencySelect) { currencyCode = currencySelect.value; }
+             const headerContainer = outputSection.querySelector('.output-header');
+             const customerContainer = outputSection.querySelector('.output-customer');
+
+             if (headerContainer) {
+                 if (docType === 'quotation') { docTitle = 'ใบเสนอราคา'; docNumber = inputSection.querySelector('#quotation-number')?.value || ''; docDate = inputSection.querySelector('#quotation-date')?.value || ''; projectName = inputSection.querySelector('#quotation-project-name')?.value || ''; }
+                 else if (docType === 'invoice') { docTitle = 'ใบแจ้งหนี้'; docNumber = inputSection.querySelector('#invoice-number')?.value || ''; docDate = inputSection.querySelector('#invoice-date')?.value || ''; dueDate = inputSection.querySelector('#invoice-due-date')?.value || ''; refQuotation = inputSection.querySelector('#invoice-ref-quotation')?.value || ''; projectName = inputSection.querySelector('#invoice-project-name')?.value || ''; }
+                 else if (docType === 'receipt') { docTitle = 'ใบเสร็จรับเงิน'; docNumber = inputSection.querySelector('#receipt-number')?.value || ''; docDate = inputSection.querySelector('#receipt-date')?.value || ''; refInvoice = inputSection.querySelector('#receipt-ref-invoice')?.value || ''; projectName = inputSection.querySelector('#receipt-project-name')?.value || ''; }
+                 else if (docType === 'submission') { docNumber = inputSection.querySelector('#submission-number')?.value || ''; docDate = inputSection.querySelector('#submission-date')?.value || ''; projectName = inputSection.querySelector('#submission-project')?.value || ''; rawSubDate = docDate; }
+                 else if (docType === 'contract') { docNumber = inputSection.querySelector('#contract-number')?.value || ''; rawConDate = inputSection.querySelector('#contract-date')?.value || ''; docDate = rawConDate; }
+
+                 if (docType !== 'contract' && docType !== 'submission') {
+                       // Removed Logo div, adjusted grid
+                      headerContainer.innerHTML = `<div class="col-span-1"><p class="font-semibold text-lg output-your-company"></p><p class="text-sm text-gray-600 output-your-tax-id"></p><p class="text-sm text-gray-600 whitespace-pre-wrap output-your-address"></p><p class="text-sm text-gray-600 output-your-contact"></p></div><div class="text-right"><h2 class="text-2xl font-bold mb-2">${docTitle}</h2><p class="mb-1"><span class="font-semibold">เลขที่:</span> <span class="output-doc-number">${docNumber}</span></p><p class="mb-1"><span class="font-semibold">วันที่:</span> <span class="output-doc-date">${formatDateThai(docDate)}</span></p>${dueDate ? `<p class="mb-1"><span class="font-semibold">กำหนดชำระ:</span> <span class="output-due-date">${formatDateThai(dueDate)}</span></p>` : ''}${refQuotation ? `<p class="mb-1"><span class="font-semibold">ใบเสนอราคา:</span> <span class="output-ref-quotation">${refQuotation}</span></p>` : ''}${refInvoice ? `<p class="mb-1"><span class="font-semibold">ใบวางบิล:</span> <span class="output-ref-invoice">${refInvoice}</span></p>` : ''}</div>`;
+                 } else if (docType === 'submission') {
+                      // Removed Logo div for submission
+                     headerContainer.innerHTML = `<div class="col-span-1"><p class="font-semibold text-lg output-your-company"></p><p class="text-sm text-gray-600 output-your-tax-id"></p><p class="text-sm text-gray-600 whitespace-pre-wrap output-your-address"></p><p class="text-sm text-gray-600 output-your-contact"></p></div><div></div>`;
+                 } else { headerContainer.innerHTML = ''; } // Contract has no header section like this
+                 updateCommonOutput(outputSection);
+             }
+
+            if (customerContainer) {
+                 let customerTitle = 'ลูกค้า';
+                 if (docType === 'quotation') customerTitle = 'เสนอ'; else if (docType === 'contract') customerTitle = 'ผู้ว่าจ้าง (ลูกค้า)'; else if (docType === 'submission') customerTitle = 'ถึง';
+                customerContainer.innerHTML = `<h3 class="font-semibold mb-1">${customerTitle}</h3><p class="font-medium output-customer-company"></p><p class="text-sm text-gray-600 output-customer-tax-id"></p><p class="text-sm text-gray-600 output-customer-contact-person"></p><p class="text-sm text-gray-600 whitespace-pre-wrap output-customer-address"></p><p class="text-sm text-gray-600 output-customer-tel"></p>`;
+                 updateCommonOutput(outputSection);
+            }
+
+            if (docType === 'quotation' || docType === 'invoice' || docType === 'receipt') {
+                const outputTableBody = outputSection.querySelector('.output-table tbody');
+                const outputTableHeader = outputSection.querySelector('.output-table thead');
+                if (!outputTableBody || !outputTableHeader) return;
+                outputTableBody.innerHTML = ''; let itemIndex = 1;
+                 // Updated Table Header to include Quantity
+                outputTableHeader.innerHTML = (docType === 'quotation') ? `<tr><th class="w-8">#</th><th>รายละเอียด</th><th class="w-12 number-cell">จำนวน</th><th class="w-16">หน่วย</th><th class="w-24 number-cell">ราคา/หน่วย</th><th class="w-24 number-cell">จำนวนเงิน</th></tr>` : `<tr><th class="w-8">#</th><th>รายการ</th><th class="w-12 number-cell">จำนวน</th><th class="w-16">หน่วย</th><th class="w-24 number-cell">ราคา/หน่วย</th><th class="w-20 number-cell">ส่วนลด</th><th class="w-24 number-cell">จำนวนเงิน</th></tr>`;
+
+                // Add Project Name Row
+                 if (projectName) {
+                    const projectRow = document.createElement('tr');
+                    projectRow.classList.add('project-name-row');
+                    const cellCount = outputTableHeader.rows[0].cells.length;
+                    projectRow.innerHTML = `<td colspan="${cellCount}"><strong>โครงการ:</strong> ${projectName}</td>`;
+                    outputTableBody.appendChild(projectRow);
+                }
+
+                inputSection.querySelectorAll('.item-row').forEach(row => {
+                     const desc = row.querySelector('.item-description').value, qty = parseFloat(row.querySelector('.item-quantity').value) || 0, unit = row.querySelector('.item-unit').value || '', price = parseFloat(row.querySelector('.item-price').value) || 0, disc = parseFloat(row.querySelector('.item-discount').value) || 0, total = (price * qty) - disc;
+                     if (desc.trim() !== '' || qty !== 0 || price !== 0) {
+                         const tr = document.createElement('tr');
+                         // Added Quantity cell to output table
+                         tr.innerHTML = (docType === 'quotation') ? `<td>${itemIndex++}</td><td>${desc}</td><td class="number-cell">${qty}</td><td>${unit}</td><td class="number-cell">${formatCurrency(price, currencyCode)}</td><td class="number-cell">${formatCurrency(total, currencyCode)}</td>` : `<td>${itemIndex++}</td><td>${desc}</td><td class="number-cell">${qty}</td><td>${unit}</td><td class="number-cell">${formatCurrency(price, currencyCode)}</td><td class="number-cell">${formatCurrency(disc, currencyCode)}</td><td class="number-cell">${formatCurrency(total, currencyCode)}</td>`;
+                         outputTableBody.appendChild(tr);
+                     }
+                 });
+                 const totalsContainer = outputSection.querySelector('.output-totals');
+                 const inputTotalsContainer = inputSection.querySelector('.totals-container');
+                 if (!totalsContainer || !inputTotalsContainer) return;
+                  const subTotalStr = inputTotalsContainer.querySelector('.grand-total')?.textContent || '0.00 บาท'; // Get formatted string directly
+                 const discountStr = inputTotalsContainer.querySelector('.total-discount')?.textContent || '0.00 บาท';
+                 const netTotalStr = inputTotalsContainer.querySelector('.net-total')?.textContent || '0.00 บาท'; // Get formatted string directly
+                 const totalWordsStr = inputTotalsContainer.querySelector('.total-in-words')?.textContent || '';
+
+                 // Updated totals HTML - Added discount row for quotation
+                 if (docType === 'quotation') {
+                     totalsContainer.innerHTML = `
+                        <div class="w-full md:w-1/2 lg:w-2/5 text-sm">
+                            <div class="flex justify-between py-1">
+                                <span>รวมเงิน</span>
+                                <span class="font-medium grand-total">${subTotalStr}</span>
+                            </div>
+                            <div class="flex justify-between py-1">
+                                <span>ส่วนลด</span>
+                                <span class="font-medium total-discount">${discountStr}</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-t-2 border-gray-400 mt-1 font-bold text-lg">
+                                <span>ยอดสุทธิ</span>
+                                <span class="net-total">${netTotalStr}</span>
+                            </div>
+                              <div class="text-right py-1 text-xs text-gray-700">
+                                <span class="total-in-words">${totalWordsStr}</span>
+                            </div>
+                        </div>
+                     `;
+                 } else {
+                     totalsContainer.innerHTML = `
+                        <div class="w-full md:w-1/2 lg:w-2/5 text-sm">
+                            <div class="flex justify-between py-1">
+                                <span>รวมเป็นเงิน</span>
+                                <span class="font-medium grand-total">${subTotalStr}</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-t-2 border-gray-400 mt-1 font-bold text-lg">
+                                <span>ยอดสุทธิ</span>
+                                <span class="net-total">${netTotalStr}</span>
+                            </div>
+                              <div class="text-right py-1 text-xs text-gray-700">
+                                <span class="total-in-words">${totalWordsStr}</span>
+                            </div>
+                        </div>
+                     `;
+                 }
+
+                const notesTermsContainer = outputSection.querySelector('.output-notes-terms');
+                const paymentDetailsContainer = outputSection.querySelector('.output-payment-details');
+                if (!notesTermsContainer) return;
+                if (docType === 'receipt' && paymentDetailsContainer) {
+                     const paymentMethod = inputSection.querySelector('input[name="payment-method"]:checked')?.value || 'N/A', paymentDetails = inputSection.querySelector('#receipt-payment-details')?.value || '';
+                     paymentDetailsContainer.innerHTML = `<div><h4 class="font-semibold mb-1">ชำระโดย:</h4><p class="text-gray-600">${paymentMethod}</p></div><div>${paymentMethod !== 'เงินสด' && paymentDetails ? `<h4 class="font-semibold mb-1">รายละเอียด:</h4><p class="text-gray-600 whitespace-pre-wrap">${paymentDetails}</p>` : ''}</div>`;
+                      notesTermsContainer.innerHTML = `<div><h4 class="font-semibold mb-1">หมายเหตุและเงื่อนไข:</h4><p class="text-gray-600 whitespace-pre-wrap">${inputSection.querySelector('.notes-input')?.value || ''}</p></div>`;
+                } else if (docType === 'invoice') {
+                      notesTermsContainer.innerHTML = `<div><h4 class="font-semibold mb-1">หมายเหตุและเงื่อนไข:</h4><p class="text-gray-600 whitespace-pre-wrap">${inputSection.querySelector('.notes-input')?.value || ''}</p></div><div><h4 class="font-semibold mb-1">ข้อมูลการชำระเงิน:</h4><p class="text-gray-600 whitespace-pre-wrap">${inputSection.querySelector('.payment-info-input')?.value || ''}</p></div>`;
+                } else {
+                     notesTermsContainer.innerHTML = `<div><h4 class="font-semibold mb-1">หมายเหตุ:</h4><p class="text-gray-600 whitespace-pre-wrap">${inputSection.querySelector('.notes-input')?.value || ''}</p></div><div><h4 class="font-semibold mb-1">เงื่อนไขการชำระเงิน:</h4><p class="text-gray-600 whitespace-pre-wrap">${inputSection.querySelector('.payment-terms-input')?.value || ''}</p><h4 class="font-semibold mb-1 mt-4">ข้อมูลการชำระเงิน:</h4><p class="text-gray-600 whitespace-pre-wrap">${inputSection.querySelector('.payment-info-input')?.value || ''}</p></div>`;
+                }
+                const signaturesContainer = outputSection.querySelector('.output-signatures'); if (!signaturesContainer) return;
+                 const issuerName = inputSection.querySelector('.issuer-name-input')?.value || 'นายบุริศร์ ชาติชำนิ', approverName = inputSection.querySelector('.approver-name-input')?.value || '...', receiverName = inputSection.querySelector('.receiver-name-input')?.value || '...', senderName = inputSection.querySelector('.sender-name-input')?.value || 'นายบุริศร์ ชาติชำนิ', checkerName = inputSection.querySelector('.checker-name-input')?.value || '...';
+                 const currentDate = inputSection.querySelector(`#${docType}-date`)?.value || '';
+                 const blankDate = '...........................................'; // Blank date placeholder
+                if (docType === 'quotation') { signaturesContainer.innerHTML = `<div class="text-center"><p>เสนอราคาโดย</p><div class="signature-box mt-12">(${issuerName})</div><p>วันที่: <span class="output-issued-date">${formatDateThai(currentDate)}</span></p></div><div class="text-center"><p>อนุมัติโดย</p><div class="signature-box mt-12">(${approverName})</div><p>วันที่: ${blankDate}</p></div>`; } // Blank approver date
+                else if (docType === 'invoice') { signaturesContainer.innerHTML = `<div class="text-center"><p>ผู้รับวางบิล / Receiver Signature</p><div class="signature-box mt-12">(${receiverName})</div><p>วันที่ / Date: ${blankDate}</p></div><div class="text-center"><p>ผู้วางบิล / Sender</p><div class="signature-box mt-12">(${senderName})</div><p>วันที่ / Date: <span class="output-issued-date">${formatDateThai(currentDate)}</span></p></div><div class="text-center"><p>ผู้อนุมัติ / Authorized Signature</p><div class="signature-box mt-12">(${approverName})</div><p>วันที่ / Date: ${blankDate}</p></div>`; } // Blank receiver/approver date
+                else if (docType === 'receipt') { signaturesContainer.innerHTML = `<div class="text-center"><p>ผู้รับเงิน / Bill Receiver</p><div class="signature-box mt-12">(${receiverName})</div><p>วันที่ / Date: ${blankDate}</p></div><div class="text-center"><p>ผู้ตรวจสอบ / Approver</p><div class="signature-box mt-12">(${checkerName})</div><p>วันที่ / Date: ${blankDate}</p></div><div class="text-center"><p>ผู้อนุมัติ / Authorized Signature</p><div class="signature-box mt-12">(${approverName})</div><p>วันที่ / Date: <span class="output-issued-date">${formatDateThai(currentDate)}</span></p></div>`; } // Blank receiver/checker date
+            } else if (docType === 'contract') {
+                 const conNum = outputSection.querySelector('.output-contract-number'), conDate = outputSection.querySelector('.output-contract-date'), conScope = outputSection.querySelector('.output-contract-scope'), conTimeline = outputSection.querySelector('.output-contract-timeline'), conPayment = outputSection.querySelector('.output-contract-payment'), conRevisions = outputSection.querySelector('.output-contract-revisions'), conCancel = outputSection.querySelector('.output-contract-cancellation'), conCopyright = outputSection.querySelector('.output-contract-copyright'), conContact = outputSection.querySelector('.output-contract-contact'), conClient = outputSection.querySelector('.output-contract-client-name'), conFree = outputSection.querySelector('.output-contract-freelancer-name'), conSign = outputSection.querySelector('.output-contract-signed-date');
+                 if (conNum) conNum.textContent = inputSection.querySelector('#contract-number')?.value || ''; if (conDate) conDate.textContent = formatDateThai(rawConDate); if (conScope) conScope.textContent = inputSection.querySelector('#contract-scope')?.value || ''; if (conTimeline) conTimeline.textContent = inputSection.querySelector('#contract-timeline')?.value || ''; if (conPayment) conPayment.textContent = inputSection.querySelector('#contract-payment')?.value || ''; if (conRevisions) conRevisions.textContent = inputSection.querySelector('#contract-revisions')?.value || ''; if (conCancel) conCancel.textContent = inputSection.querySelector('#contract-cancellation')?.value || ''; if (conCopyright) conCopyright.textContent = inputSection.querySelector('#contract-copyright')?.value || ''; if (conContact) conContact.textContent = inputSection.querySelector('#contract-contact')?.value || ''; if (conClient) conClient.textContent = document.getElementById('customer-company')?.value || '...'; if (conFree) conFree.textContent = inputSection.querySelector('.freelancer-name-input')?.value || document.getElementById('your-company')?.value || '...'; if (conSign) conSign.textContent = formatDateThai(rawConDate);
+                 updateCommonOutput(outputSection);
+                 // Update signature date for client to blank
+                 const clientSigDate = outputSection.querySelector('.output-signatures .text-center:first-of-type p:last-of-type');
+                 if (clientSigDate) clientSigDate.textContent = `วันที่: ...........................................`;
+
+            } else if (docType === 'submission') {
+                const subNum = outputSection.querySelector('.output-submission-number'), subProj = outputSection.querySelector('.output-submission-project'), subDate = outputSection.querySelector('.output-submission-date'), subItems = outputSection.querySelector('.output-submission-items'), subNotes = outputSection.querySelector('.output-submission-notes'), subSubmitter = outputSection.querySelector('.output-submission-submitter-name'), subSubmitDate = outputSection.querySelector('.output-submission-submit-date'), subReceiver = outputSection.querySelector('.output-submission-receiver-name');
+                 if (subNum) subNum.textContent = inputSection.querySelector('#submission-number')?.value || ''; if (subProj) subProj.textContent = inputSection.querySelector('#submission-project')?.value || ''; if (subDate) subDate.textContent = formatDateThai(docDate); if (subItems) subItems.textContent = inputSection.querySelector('#submission-items')?.value || ''; if (subNotes) subNotes.textContent = inputSection.querySelector('#submission-notes')?.value || ''; if (subSubmitter) subSubmitter.textContent = document.getElementById('your-company')?.value || '...'; if (subSubmitDate) subSubmitDate.textContent = formatDateThai(docDate); if (subReceiver) subReceiver.textContent = inputSection.querySelector('.receiver-ack-name-input')?.value || '...';
+                 updateCommonOutput(outputSection);
+                  // Update signature date for receiver to blank
+                 const receiverSigDate = outputSection.querySelector('.output-signatures .text-center:last-of-type p:last-of-type');
+                 if (receiverSigDate) receiverSigDate.textContent = `วันที่: ...........................................`;
+            }
+         }
+
+        // --- Document Type Switching ---
+        function switchDocType(docType) {
+            currentDocType = docType;
+            document.querySelectorAll('#doc-type-selector .tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`#doc-type-selector button[onclick="switchDocType('${docType}')"]`).classList.add('active');
+            document.querySelectorAll('.input-section, .doc-output').forEach(section => section.classList.remove('active'));
+            const inputSection = document.getElementById(`input-${docType}`);
+            const outputSection = document.getElementById(`output-${docType}`);
+            if (inputSection) inputSection.classList.add('active');
+            if (outputSection) outputSection.classList.add('active');
+            updateOutput(docType);
+            if(inputSection) inputSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+         // --- NEW FUNCTION to download data as Excel ---
+         function downloadExcel() {
+             const downloadButton = document.getElementById('download-button');
+             const statusDiv = document.getElementById('download-status');
+             const docType = currentDocType;
+             const inputSection = document.getElementById(`input-${docType}`);
+
+             // Basic validation
+             if (!document.getElementById('customer-company').value) {
+                 statusDiv.textContent = `ข้อผิดพลาด: กรุณากรอกชื่อลูกค้า`;
+                 statusDiv.className = 'status-error'; return;
+             }
+             let docNumberInput;
+             if (['quotation', 'invoice', 'receipt', 'contract', 'submission'].includes(docType)) {
+                docNumberInput = inputSection.querySelector(`#${docType}-number`);
+                if (!docNumberInput || !docNumberInput.value) {
+                     statusDiv.textContent = `ข้อผิดพลาด: กรุณากรอกเลขที่เอกสาร`;
+                     statusDiv.className = 'status-error'; return;
+                 }
+             }
+
+             downloadButton.disabled = true;
+             statusDiv.textContent = 'กำลังเตรียมไฟล์...'; statusDiv.className = 'status-loading';
+
+             try {
+                // --- Define Headers (Columns) - Removed WHT, Added Project Name ---
+                const headers = [
+                    "ประเภทเอกสาร", "เลขที่เอกสาร", "วันที่เอกสาร", "ชื่อโครงการ/งาน", "กำหนดชำระ", // Added Project Name here
+                    "อ้างอิงใบเสนอราคา", "อ้างอิงใบแจ้งหนี้", "ชื่อลูกค้า", "ผู้ติดต่อลูกค้า",
+                    "ชื่อผู้ขาย", "สกุลเงิน", "ยอดรวม (ยอดสุทธิ)",
+                    "จำนวนรายการ",
+                    "หมายเหตุ", "เงื่อนไขชำระ", "วิธีชำระ", "รายละเอียดชำระ",
+                    "ขอบเขตงาน(สัญญา)", "ระยะเวลา(สัญญา)", //"ชื่อโปรเจกต์(ส่งมอบ)", // Redundant now with common Project Name
+                    "รายการที่ส่งมอบ"
+                ];
+
+                // --- Gather Data Object ---
+                const dataObject = {};
+                const totalsContainer = inputSection.querySelector('.totals-container'); // For Q/I/R
+
+                // Common Data
+                dataObject["ประเภทเอกสาร"] = docType;
+                dataObject["ชื่อผู้ขาย"] = document.getElementById('your-company').value;
+                dataObject["ชื่อลูกค้า"] = document.getElementById('customer-company').value;
+                dataObject["ผู้ติดต่อลูกค้า"] = document.getElementById('customer-contact-person').value;
+                 // Get Project Name from relevant input
+                 let projectNameInputValue = '';
+                 const projectNameInput = inputSection.querySelector(`#${docType}-project-name`);
+                 if (projectNameInput) { projectNameInputValue = projectNameInput.value; }
+                 else if (docType === 'contract') { projectNameInputValue = inputSection.querySelector('#contract-scope')?.value.split('\n')[0] || ''; } // Use first line of scope for contract
+                 else if (docType === 'submission') { projectNameInputValue = inputSection.querySelector('#submission-project')?.value || ''; }
+                dataObject["ชื่อโครงการ/งาน"] = projectNameInputValue;
+
+
+                // Specific Data
+                if (docType === 'quotation' || docType === 'invoice' || docType === 'receipt') {
+                    dataObject["เลขที่เอกสาร"] = inputSection.querySelector(`#${docType}-number`).value;
+                    dataObject["วันที่เอกสาร"] = inputSection.querySelector(`#${docType}-date`).value;
+                    dataObject["กำหนดชำระ"] = inputSection.querySelector(`#${docType}-due-date`)?.value || '';
+                    dataObject["อ้างอิงใบเสนอราคา"] = inputSection.querySelector(`#${docType}-ref-quotation`)?.value || '';
+                    dataObject["อ้างอิงใบแจ้งหนี้"] = inputSection.querySelector(`#${docType}-ref-invoice`)?.value || '';
+                    dataObject["สกุลเงิน"] = document.getElementById(`${docType}-currency`).value;
+                    
+                    // Calculate totals with discount
+                    let subTotal = 0;
+                    inputSection.querySelectorAll('.item-row').forEach(row => {
+                        const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+                        const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                        const discount = parseFloat(row.querySelector('.item-discount').value) || 0;
+                        subTotal += (price * quantity) - discount;
+                    });
+                    
+                    let discountPercent = 0;
+                    let totalDiscount = 0;
+                    let netTotal = subTotal;
+                    
+                    if (docType === 'quotation') {
+                        discountPercent = parseFloat(document.getElementById('quotation-discount-percent')?.value) || 0;
+                        totalDiscount = (subTotal * discountPercent) / 100;
+                        netTotal = subTotal - totalDiscount;
+                    }
+                    
+                    dataObject["ยอดรวมก่อนลด"] = subTotal.toFixed(2);
+                    dataObject["ส่วนลดรวม(%)"] = discountPercent;
+                    dataObject["ยอดส่วนลด"] = totalDiscount.toFixed(2);
+                    dataObject["ยอดสุทธิ"] = netTotal.toFixed(2);
+                    dataObject["จำนวนรายการ"] = inputSection.querySelectorAll('.item-row').length;
+                    dataObject["หมายเหตุ"] = inputSection.querySelector('.notes-input')?.value || '';
+                    dataObject["เงื่อนไขชำระ"] = inputSection.querySelector('.payment-terms-input')?.value || '';
+                    dataObject["วิธีชำระ"] = inputSection.querySelector('input[name="payment-method"]:checked')?.value || '';
+                    dataObject["รายละเอียดชำระ"] = inputSection.querySelector('#receipt-payment-details')?.value || '';
+                } else if (docType === 'contract') {
+                    dataObject["เลขที่เอกสาร"] = inputSection.querySelector('#contract-number').value;
+                    dataObject["วันที่เอกสาร"] = inputSection.querySelector('#contract-date').value;
+                    dataObject["ขอบเขตงาน(สัญญา)"] = inputSection.querySelector('#contract-scope').value; // Keep specific contract field
+                    dataObject["ระยะเวลา(สัญญา)"] = inputSection.querySelector('#contract-timeline').value; // Keep specific contract field
+                    dataObject["เงื่อนไขชำระ"] = inputSection.querySelector('#contract-payment').value;
+                     dataObject["หมายเหตุ"] = `แก้ไข:${inputSection.querySelector('#contract-revisions').value}\nยกเลิก:${inputSection.querySelector('#contract-cancellation').value}\nลิขสิทธิ์:${inputSection.querySelector('#contract-copyright').value}\nติดต่อ:${inputSection.querySelector('#contract-contact').value}`;
+                     dataObject["ยอดรวมก่อนลด"] = 0;
+                     dataObject["ส่วนลดรวม(%)"] = 0;
+                     dataObject["ยอดส่วนลด"] = 0;
+                     dataObject["ยอดสุทธิ"] = 0; // Contract amount might be in payment terms
+
+                } else if (docType === 'submission') {
+                    dataObject["เลขที่เอกสาร"] = inputSection.querySelector('#submission-number').value;
+                    dataObject["วันที่เอกสาร"] = inputSection.querySelector('#submission-date').value;
+                    // dataObject["ชื่อโปรเจกต์(ส่งมอบ)"] = inputSection.querySelector('#submission-project').value; // Already captured in common Project Name
+                    dataObject["รายการที่ส่งมอบ"] = inputSection.querySelector('#submission-items').value;
+                    dataObject["หมายเหตุ"] = inputSection.querySelector('#submission-notes').value;
+                    dataObject["ยอดรวมก่อนลด"] = 0;
+                    dataObject["ส่วนลดรวม(%)"] = 0;
+                    dataObject["ยอดส่วนลด"] = 0;
+                    dataObject["ยอดสุทธิ"] = 0; // Submission might not have amount
+                }
+
+                // --- Create Excel Data Array (Headers + Data Row) ---
+                const excelData = [headers]; // Start with headers
+                const dataRow = headers.map(header => dataObject[header] ?? ""); // Map data object to header order, use "" for missing keys
+                excelData.push(dataRow);
+
+                // --- Create and Download Excel using SheetJS ---
+                const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+                // --- Adjust Column Widths (Optional but Recommended) ---
+                const colWidths = headers.map((header, index) => {
+                    let maxLen = header.length;
+                    excelData.slice(1).forEach(row => { // Check data rows for length
+                       const cellValue = row[index] ? String(row[index]) : '';
+                       // Simple check for multiline text (adjust threshold as needed)
+                       const lines = cellValue.split('\n');
+                       const lineLengths = lines.map(line => line.length);
+                       const maxLineLength = Math.max(...lineLengths);
+                       maxLen = Math.max(maxLen, maxLineLength > 50 ? 50 : maxLineLength); // Limit width for very long lines
+                    });
+                    return { wch: Math.min(maxLen + 2, 60) }; // Add padding, limit max width
+                 });
+                ws['!cols'] = colWidths;
+
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "BillingData"); // Add sheet named "BillingData"
+
+                // Generate filename
+                let filename = `${docType}.xlsx`;
+                if(dataObject["เลขที่เอกสาร"]) {
+                    filename = `${docType}_${dataObject["เลขที่เอกสาร"].replace(/[^a-zA-Z0-9]/g, '-')}.xlsx`;
+                }
+
+                XLSX.writeFile(wb, filename);
+
+                 statusDiv.textContent = 'ดาวน์โหลดไฟล์สำเร็จ!'; statusDiv.className = 'status-success';
+
+             } catch (error) {
+                 console.error('Error creating Excel file:', error);
+                 statusDiv.textContent = `เกิดข้อผิดพลาด: ${error.message}`; statusDiv.className = 'status-error';
+             } finally {
+                 downloadButton.disabled = false;
+                 setTimeout(() => { if (statusDiv.className !== 'status-error') statusDiv.textContent = ''; }, 5000);
+             }
+         }
+
+
+         // --- Initialization ---
+        function initializeDocumentInputs(docType) {
+            const inputSection = document.getElementById(`input-${docType}`); if (!inputSection) return;
+            // Set default values only if not already set (from localStorage)
+             if (!document.getElementById('your-company').value) document.getElementById('your-company').value = "นายบุริศร์ ชาติชำนิ";
+             if (!document.getElementById('your-tax-id').value) document.getElementById('your-tax-id').value = "1-1103-01367-17-2";
+             if (!document.getElementById('your-address').value) document.getElementById('your-address').value = "61/315 ม.3 มบ.ไรมอนพาร์ค ซ.บางปลา 12\nถ.เทพารักษ์ ต.บางปลา อ.บางพลี จ.สมุทรปราการ 10540";
+             if (!document.getElementById('your-contact').value) document.getElementById('your-contact').value = "083-149-4529, burist2016@gmail.com";
+
+            if (['quotation', 'invoice', 'receipt'].includes(docType)) {
+                const itemsContainer = inputSection.querySelector('.items-container');
+                const totalsContainer = inputSection.querySelector('.totals-container');
+                const notesTermsContainer = inputSection.querySelector('.notes-terms-container');
+                const signaturesContainer = inputSection.querySelector('.signatures-container');
+                if (!itemsContainer || !totalsContainer || !notesTermsContainer || !signaturesContainer) { console.error(`Init failed: Missing container for ${docType}`); return; }
+                if (!itemsContainer.querySelector('.item-row')) {
+                    itemsContainer.innerHTML = generateItemRowHTML(docType);
+                     const firstRemoveBtn = itemsContainer.querySelector('.remove-item-btn');
+                     if (firstRemoveBtn) { firstRemoveBtn.addEventListener('click', () => removeItemRow(firstRemoveBtn)); firstRemoveBtn.setAttribute('data-listener-added', 'true'); }
+                }
+                itemsContainer.querySelectorAll('.item-row').forEach(row => {
+                     row.querySelectorAll('.item-quantity, .item-price, .item-discount').forEach(input => input.addEventListener('input', () => calculateRowTotal(input)));
+                     row.querySelectorAll('.item-description, .item-unit').forEach(input => input.addEventListener('input', () => updateOutput(docType)));
+                     const removeBtn = row.querySelector('.remove-item-btn');
+                     if (removeBtn && !removeBtn.getAttribute('data-listener-added')) { removeBtn.addEventListener('click', () => removeItemRow(removeBtn)); removeBtn.setAttribute('data-listener-added', 'true'); }
+                 });
+                 // Updated totals HTML initialization - Removed WHT row
+                  totalsContainer.innerHTML = `
+                    <div class="w-full md:w-1/2 lg:w-2/5 text-sm">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-medium text-gray-600">${docType === 'quotation' ? 'รวมทั้งสิ้น' : 'รวมเป็นเงิน'}:</span>
+                            <span class="font-semibold text-gray-800 grand-total">0.00 บาท</span> <!-- Added unit -->
+                        </div>
+                        <!-- WHT row removed -->
+                        <div class="flex justify-between font-bold text-lg border-t pt-1 mt-1 border-gray-300">
+                            <span class="text-gray-800">ยอดสุทธิ:</span>
+                            <span class="text-blue-600 net-total">0.00 บาท</span> <!-- Added unit -->
+                        </div>
+                         <div class="flex justify-between mt-1">
+                            <span class="font-medium text-gray-600 text-xs">ตัวอักษร:</span>
+                            <span class="text-gray-800 text-right total-in-words text-xs"></span>
+                        </div>
+                    </div>`;
+
+                 // Set default payment info from PDF
+                 const defaultPaymentInfo = "ชื่อบัญชี: นายบุริศร์ ชาติชำนิ\nหมายเลขบัญชี: 037-7-427166\nธนาคาร: กรุงเทพ\nสาขา: มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี";
+
+                if (docType === 'quotation') {
+                     totalsContainer.innerHTML = `<div class="text-right"><div class="mb-2"><span class="font-semibold">รวมเงิน:</span> <span class="grand-total ml-4"></span></div><div class="mb-2"><span class="font-semibold">ส่วนลด:</span> <span class="total-discount ml-4"></span></div><div class="mb-2 text-lg"><span class="font-bold">ยอดสุทธิ:</span> <span class="net-total ml-4 font-bold"></span></div><div class="text-sm text-gray-600 total-in-words"></div></div>`;
+                     notesTermsContainer.innerHTML = `<div><label for="quotation-notes">หมายเหตุ:</label><textarea id="quotation-notes" class="notes-input" oninput="updateOutput('quotation'); saveFormData();">* ยืนราคา 30 วัน...\n* ดูแล Bug Fixing 3 เดือน...</textarea></div><div><label for="quotation-payment-terms">เงื่อนไขการชำระเงิน:</label><textarea id="quotation-payment-terms" class="payment-terms-input" oninput="updateOutput('quotation'); saveFormData();">* งวดที่ 1) 30%...\n* งวดที่ 2) 40%...\n* งวดที่ 3) 30%...</textarea><label for="quotation-payment-info">ข้อมูลการชำระเงิน:</label><textarea id="quotation-payment-info" class="payment-info-input" oninput="updateOutput('quotation'); saveFormData();">${defaultPaymentInfo}</textarea></div>`;
+                     // Only set default values if not loaded from localStorage
+                     const savedData = localStorage.getItem('freelanceDocData');
+                     if (!savedData || !JSON.parse(savedData).quotation) {
+                         inputSection.querySelector('#quotation-notes').value = "* ยืนราคา 30 วันนับจากวันที่เสนอราคา\n* ดูแลและแก้ไขข้อผิดพลาดของระบบ (Bug Fixing) ที่อยู่ในขอบเขตงาน Phase 1 หลังส่งมอบงาน เป็นเวลา 3 เดือน";
+                         inputSection.querySelector('#quotation-payment-terms').value = "* งวดที่ 1) 30% (56,250 บาท) เมื่อเริ่มโครงการและส่งมอบแผนงาน/Design เบื้องต้น\n* งวดที่ 2) 40% (75,000 บาท) เมื่อส่งมอบระบบส่วนหลัก (Core Modules) ที่สามารถทดสอบการใช้งานพื้นฐานได้\n* งวดที่ 3) 30% (56,250 บาท) เมื่อส่งมอบงานทั้งหมดและผ่านการทดสอบโดยผู้ใช้ (UAT) เรียบร้อย";
+                     }
+                     signaturesContainer.innerHTML = `<div><label>ชื่อผู้เสนอราคา:</label><input type="text" class="issuer-name-input" value="นายบุริศร์ ชาติชำนิ" oninput="updateOutput('quotation'); saveFormData();"></div><div><label>ชื่อผู้อนุมัติ (ลูกค้า):</label><input type="text" class="approver-name-input" placeholder="[ชื่อผู้อนุมัติฝั่ง RSC/สรบ.]" oninput="updateOutput('quotation'); saveFormData();"></div>`;
+                 }
+                 else if (docType === 'invoice') {
+                     notesTermsContainer.innerHTML = `<div><label for="invoice-notes">หมายเหตุและเงื่อนไข:</label><textarea id="invoice-notes" class="notes-input" oninput="updateOutput('invoice')"></textarea></div><div><label for="invoice-payment-info">ข้อมูลการชำระเงิน:</label><textarea id="invoice-payment-info" class="payment-info-input" oninput="updateOutput('invoice')">${defaultPaymentInfo}</textarea></div>`;
+                     signaturesContainer.innerHTML = `<div><label>ผู้รับวางบิล:</label><input type="text" class="receiver-name-input" oninput="updateOutput('invoice')"></div><div><label>ผู้วางบิล/ผู้ส่ง:</label><input type="text" class="sender-name-input" value="นายบุริศร์ ชาติชำนิ" oninput="updateOutput('invoice')"></div><div><label>ผู้อนุมัติ:</label><input type="text" class="approver-name-input" placeholder="[ชื่อผู้อนุมัติฝั่ง RSC/สรบ.]" oninput="updateOutput('invoice')"></div>`;
+                 }
+                 else if (docType === 'receipt') {
+                     notesTermsContainer.innerHTML = `<div><label for="receipt-notes">หมายเหตุและเงื่อนไข:</label><textarea id="receipt-notes" class="notes-input" oninput="updateOutput('receipt')"></textarea></div>`;
+                     signaturesContainer.innerHTML = `<div><label>ผู้รับเงิน:</label><input type="text" class="receiver-name-input" oninput="updateOutput('receipt')"></div><div><label>ผู้ตรวจสอบ:</label><input type="text" class="checker-name-input" oninput="updateOutput('receipt')"></div><div><label>ผู้อนุมัติ:</label><input type="text" class="approver-name-input" value="นายบุริศร์ ชาติชำนิ" oninput="updateOutput('receipt')"></div>`;
+                 }
+                 calculateDocTotals(docType);
+            } else if (docType === 'contract') {
+                 const signaturesContainer = inputSection.querySelector('.signatures-container');
+                 if (signaturesContainer) { signaturesContainer.innerHTML = `<div><label>ชื่อผู้รับจ้าง:</label><input type="text" class="freelancer-name-input" value="นายบุริศร์ ชาติชำนิ" oninput="updateOutput('contract')"></div><div><label>ชื่อผู้ว่าจ้าง (ลูกค้า):</label><input type="text" class="client-name-input" placeholder="[ชื่อลูกค้า]" oninput="updateOutput('contract')"></div>`; }
+            } else if (docType === 'submission') {
+                 const signaturesContainer = inputSection.querySelector('.signatures-container');
+                  if (signaturesContainer) { signaturesContainer.innerHTML = `<div><label>ชื่อผู้ส่งมอบงาน:</label><input type="text" class="submitter-name-input" value="นายบุริศร์ ชาติชำนิ" oninput="updateOutput('submission')" readonly></div><div><label>ชื่อผู้รับมอบงาน (ลูกค้า - ถ้าต้องการระบุ):</label><input type="text" class="receiver-ack-name-input" placeholder="[ลงชื่อรับทราบ]" oninput="updateOutput('submission')"></div>`; }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load saved data first
+            loadFormData();
             
-            callGeminiForMealSuggestion(prompt, mealSuggesterBtn, mealSuggesterLoader, mealSuggesterResult);
-        });
-
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                tabContents.forEach(content => content.classList.add('hidden'));
-
-                button.classList.add('active');
-                const targetId = button.id.replace('btn-', 'plan-');
-                document.getElementById(targetId).classList.remove('hidden');
+            const today = new Date().toISOString().split('T')[0];
+            ['quotation-date', 'invoice-date', 'receipt-date', 'invoice-due-date', 'contract-date', 'submission-date'].forEach(id => { const el = document.getElementById(id); if (el && !el.value) el.value = today; }); // Only set today if no saved value
+            ['quotation', 'invoice', 'receipt', 'contract', 'submission'].forEach(initializeDocumentInputs);
+            calculateDocTotals(currentDocType); updateOutput(currentDocType);
+            
+            // Add auto-save on input changes
+            ['your-company', 'your-tax-id', 'your-address', 'your-contact', 'customer-company', 'customer-tax-id', 'customer-contact-person', 'customer-address', 'customer-tel'].forEach(id => { 
+                const el = document.getElementById(id); 
+                if (el) {
+                    el.addEventListener('input', () => {
+                        updateOutput(currentDocType);
+                        saveFormData(); // Auto-save
+                    });
+                }
             });
-        });
+            
+            ['quotation-currency', 'invoice-currency', 'receipt-currency'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', () => { updateAllCalculations(); saveFormData(); }); });
+            
+            // Add event listener for discount percent input
+            const discountPercentEl = document.getElementById('quotation-discount-percent');
+            if (discountPercentEl) {
+                discountPercentEl.addEventListener('input', () => {
+                    calculateDocTotals('quotation');
+                    updateOutput('quotation');
+                    saveFormData();
+                });
+            }
+            
+            // Add auto-save for all document inputs
+            document.querySelectorAll('input, textarea, select').forEach(el => {
+                if (!el.getAttribute('data-autosave-listener')) {
+                    el.addEventListener('change', saveFormData);
+                    el.setAttribute('data-autosave-listener', 'true');
+                }
+            });
 
+             // Set default items based on PDF for Quotation initially (only if no saved data)
+            const savedData = localStorage.getItem('freelanceDocData');
+            if (currentDocType === 'quotation' && (!savedData || !JSON.parse(savedData).quotation || !JSON.parse(savedData).quotation.items)) {
+                const itemsContainer = document.querySelector('#input-quotation .items-container');
+                itemsContainer.innerHTML = ''; // Clear default empty row first
+                const defaultItems = [
+                    { desc: "การวางแผนและออกแบบระบบ (Planning & Design)", qty: 1, unit: "งาน", price: 36000, disc: 0 },
+                    { desc: "การพัฒนาระบบส่วนหลัก (Core System Development)", qty: 1, unit: "งาน", price: 90000, disc: 0 },
+                    { desc: "การพัฒนา Dashboard และส่วนเสริม (Dashboard & Features)", qty: 1, unit: "งาน", price: 36000, disc: 0 },
+                    { desc: "การสนับสนุนการทดสอบ (UAT) และปรับปรุง (UAT Support & Revision)", qty: 1, unit: "งาน", price: 18000, disc: 0 },
+                    { desc: "Cloud Hosting/Server", qty: 5, unit: "เดือน", price: 1500, disc: 0 } // Assuming 5 months based on total
+                ];
+                defaultItems.forEach(item => {
+                     itemsContainer.insertAdjacentHTML('beforeend', generateItemRowHTML('quotation'));
+                     const newRow = itemsContainer.lastElementChild;
+                     newRow.querySelector('.item-description').value = item.desc;
+                     newRow.querySelector('.item-quantity').value = item.qty;
+                     newRow.querySelector('.item-unit').value = item.unit;
+                     newRow.querySelector('.item-price').value = item.price;
+                     newRow.querySelector('.item-discount').value = item.disc;
+                     calculateRowTotal(newRow.querySelector('.item-quantity')); // Trigger calculation
+                     addEventListenersToRow(newRow); // Add listeners using the defined function
+                 });
+                 // Re-calculate totals and update output after adding defaults
+                 calculateDocTotals('quotation');
+                 updateOutput('quotation');
+            }
+        });
     </script>
+
 </body>
 </html>
