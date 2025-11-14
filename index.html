@@ -24,6 +24,13 @@
             margin-right: auto;
             display: none; /* Hide all initially */
             border-radius: 0.5rem;
+            font-size: 0.95rem; /* ขนาดฟอนต์พื้นฐาน */
+            line-height: 1.6; /* ระยะห่างบรรทัด */
+        }
+        .doc-output p,
+        .doc-output span:not(.font-bold):not(.font-semibold),
+        .doc-output div:not(.signature-area) {
+            font-size: 0.95rem;
         }
         .doc-output.active {
             display: block; /* Show only the active one */
@@ -95,14 +102,15 @@
             border-collapse: collapse; 
             margin-top: 1rem; 
             margin-bottom: 1rem; 
-            font-size: 0.875rem;
+            font-size: 0.95rem; /* ขนาดเท่ากับเนื้อหาทั่วไป */
             border-radius: 0.5rem;
             overflow: hidden;
         }
         th, td { 
             border: 1px solid #e5e7eb; 
             padding: 0.75rem 0.5rem; 
-            text-align: left; 
+            text-align: left;
+            font-size: 0.95rem; /* ขนาดเท่ากันทั้งหมด */
         }
         th { 
             background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
@@ -116,8 +124,19 @@
             background-color: #f9fafb;
         }
         td.number-cell, th.number-cell { text-align: right; }
-        .signature-area { margin-top: 2rem; border-top: 1px solid #e2e8f0; padding-top: 1rem; font-size: 0.875rem;}
-        .signature-box { border-top: 1px dashed #9ca3af; padding-top: 0.5rem; margin-top: 1.5rem; text-align: center; }
+        .signature-area { 
+            margin-top: 2rem; 
+            border-top: 1px solid #e2e8f0; 
+            padding-top: 1rem; 
+            font-size: 0.95rem;
+        }
+        .signature-box { 
+            border-top: 1px dashed #9ca3af; 
+            padding-top: 0.5rem; 
+            margin-top: 4rem; /* เพิ่มจาก 1.5rem เป็น 4rem */
+            text-align: center;
+            min-height: 3rem; /* เพิ่มความสูงขั้นต่ำ */
+        }
         #download-status { margin-top: 1rem; text-align: center; font-weight: 500; font-size: 0.875rem;} /* Changed ID */
         .status-success { color: #10b981; }
         .status-error { color: #ef4444; }
@@ -207,8 +226,8 @@
                  font-family: 'Sarabun', sans-serif;
                  -webkit-print-color-adjust: exact !important;
                  print-color-adjust: exact !important;
-                 font-size: 8.5pt; /* Reduced from 10pt */
-                 line-height: 1.3; /* Tighter line height */
+                 font-size: 9pt; /* เพิ่มจาก 8.5pt เป็น 9pt */
+                 line-height: 1.4; /* เพิ่มจาก 1.3 เป็น 1.4 */
              }
              #page-title,
              #input-container,
@@ -236,7 +255,7 @@
                  padding: 0.2cm !important;
              }
              table {
-                 font-size: 7.5pt !important; /* Reduced */
+                 font-size: 8.5pt !important; /* เพิ่มจาก 7.5pt */
                  margin-top: 0.2cm !important;
                  margin-bottom: 0.2cm !important;
                  page-break-inside: auto;
@@ -246,8 +265,9 @@
                  page-break-after: auto;
              }
              th, td { 
-                 padding: 0.15cm 0.2cm !important; /* Reduced padding */
-                 line-height: 1.2 !important;
+                 padding: 0.2cm 0.25cm !important; /* เพิ่ม padding เล็กน้อย */
+                 line-height: 1.4 !important;
+                 font-size: 8.5pt !important; /* ขนาดเท่ากันทั้งหมด */
              }
              h1, h2, h3 {
                  margin-top: 0.2cm !important;
@@ -257,34 +277,35 @@
                  margin-top: 0.1cm !important;
                  margin-bottom: 0.1cm !important;
              }
-             /* Compact notes/terms section */
+             /* Consistent font sizes for notes/terms section */
              .output-notes-terms, .output-payment-details {
-                 margin-top: 0.3cm !important;
+                 margin-top: 0.4cm !important;
                  gap: 0.3cm !important;
-                 font-size: 7.5pt !important;
-                 page-break-inside: auto; /* Allow breaking if needed */
+                 font-size: 8.5pt !important; /* ขนาดเท่ากันกับส่วนอื่น */
+                 page-break-inside: auto;
              }
              .contract-section {
-                 margin-top: 0.3cm !important;
+                 margin-top: 0.4cm !important;
                  padding-top: 0.3cm !important;
                  page-break-inside: auto;
              }
-             /* Compact signature area */
+             /* Signature area with more space */
              .signature-area {
-                 margin-top: 0.5cm !important; /* Reduced from 1.5cm */
-                 padding-top: 0.3cm !important;
+                 margin-top: 0.8cm !important; /* เพิ่มจาก 0.5cm */
+                 padding-top: 0.4cm !important;
                  border-top: 1px solid #ccc !important;
                  page-break-inside: avoid !important;
-                 font-size: 7.5pt !important;
+                 font-size: 8.5pt !important;
              }
              .signature-box {
-                 margin-top: 0.5cm !important; /* Reduced from mt-12 */
-                 padding-top: 0.2cm !important;
+                 margin-top: 2cm !important; /* เพิ่มพื้นที่สำหรับเซ็นชื่อ */
+                 padding-top: 0.3cm !important;
+                 min-height: 1.5cm !important;
              }
              .output-totals {
-                 margin-top: 0.2cm !important;
-                 margin-bottom: 0.2cm !important;
-                 font-size: 8pt !important;
+                 margin-top: 0.3cm !important;
+                 margin-bottom: 0.3cm !important;
+                 font-size: 8.5pt !important; /* ขนาดเท่ากันกับส่วนอื่น */
              }
              th, .project-name-row td { background-color: #f3f4f6 !important; print-color-adjust: exact !important; }
              h1, h2, h3 { color: black !important; page-break-after: avoid; } /* Avoid breaking after headings */
