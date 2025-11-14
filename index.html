@@ -15,24 +15,26 @@
         }
         .doc-output { /* Renamed for general use */
             border: 1px solid #e2e8f0;
-            padding: 2rem;
+            padding: 2.5rem;
             margin-top: 2rem;
             background-color: white;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            max-width: 800px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 900px;
             margin-left: auto;
             margin-right: auto;
             display: none; /* Hide all initially */
+            border-radius: 0.5rem;
         }
         .doc-output.active {
             display: block; /* Show only the active one */
         }
         .input-section {
-             background-color: #f9fafb;
+             background: linear-gradient(to bottom, #ffffff, #f9fafb);
              padding: 1.5rem;
-             border-radius: 0.5rem;
-             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-             margin-bottom: 1rem; /* Reduced margin */
+             border-radius: 0.75rem;
+             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+             margin-bottom: 1.5rem;
+             border: 1px solid #e5e7eb;
              display: none; /* Hide all initially */
         }
          .input-section.active {
@@ -47,22 +49,37 @@
         }
         input[type="text"], input[type="number"], input[type="date"], textarea, select {
             width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
+            padding: 0.625rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
             margin-bottom: 0.75rem;
-            box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         textarea {
             min-height: 60px; /* Reduced height */
         }
         button {
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.3s ease;
             font-size: 0.875rem;
+            font-weight: 500;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(0);
         }
         .btn-primary { background-color: #3b82f6; color: white; border: none; }
         .btn-primary:hover:not(:disabled) { background-color: #2563eb; }
@@ -73,9 +90,31 @@
         .btn-danger { background-color: #ef4444; color: white; border: none; }
         .btn-danger:hover:not(:disabled) { background-color: #dc2626; }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; margin-bottom: 1rem; font-size: 0.875rem;}
-        th, td { border: 1px solid #d1d5db; padding: 0.5rem; text-align: left; }
-        th { background-color: #f3f4f6; font-weight: 600; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 1rem; 
+            margin-bottom: 1rem; 
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        th, td { 
+            border: 1px solid #e5e7eb; 
+            padding: 0.75rem 0.5rem; 
+            text-align: left; 
+        }
+        th { 
+            background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            color: #374151;
+        }
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
         td.number-cell, th.number-cell { text-align: right; }
         .signature-area { margin-top: 2rem; border-top: 1px solid #e2e8f0; padding-top: 1rem; font-size: 0.875rem;}
         .signature-box { border-top: 1px dashed #9ca3af; padding-top: 0.5rem; margin-top: 1.5rem; text-align: center; }
@@ -83,19 +122,78 @@
         .status-success { color: #10b981; }
         .status-error { color: #ef4444; }
         .status-loading { color: #3b82f6; }
-        .tab-button { background-color: #e5e7eb; color: #4b5563; border: 1px solid #d1d5db; border-bottom: none; }
-        .tab-button.active { background-color: #f9fafb; color: #1f2937; border-bottom: 1px solid #f9fafb; margin-bottom: -1px; z-index: 10; position: relative;}
-        .common-section { background-color: #f3f4f6; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;}
+        .tab-button { 
+            background-color: #e5e7eb; 
+            color: #4b5563; 
+            border: 1px solid #d1d5db; 
+            border-bottom: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        .tab-button:hover::before {
+            left: 100%;
+        }
+        .tab-button.active { 
+            background: linear-gradient(to bottom, #ffffff, #f9fafb);
+            color: #1f2937; 
+            border: 1px solid #d1d5db;
+            border-bottom: 2px solid #3b82f6;
+            margin-bottom: -1px; 
+            z-index: 10; 
+            position: relative;
+            font-weight: 600;
+        }
+        /* Sticky document type selector */
+        #doc-type-selector {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+        }
+        #doc-type-selector.scrolled {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .common-section { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1.5rem; 
+            border-radius: 0.75rem; 
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .common-section h2,
+        .common-section h3,
+        .common-section label {
+            color: white !important;
+        }
+        .common-section input,
+        .common-section textarea {
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
         .contract-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; }
         /* Added style for project name row */
         .project-name-row td { background-color: #f9fafb; font-style: italic; font-weight: 500; }
 
 
-        /* Print styles */
+        /* Print styles - Optimized for single page */
         @media print {
              @page {
                  size: A4;
-                 margin: 1cm; /* Adjust margin if needed */
+                 margin: 0.8cm 1cm; /* Reduced top/bottom margin */
                  @top-center { content: ""; }
                  @bottom-center { content: ""; }
                  @bottom-left { content: ""; }
@@ -108,8 +206,9 @@
                  background-color: white;
                  font-family: 'Sarabun', sans-serif;
                  -webkit-print-color-adjust: exact !important;
-                 color-adjust: exact !important;
-                 font-size: 10pt; /* Can reduce slightly if needed, e.g., 9.5pt */
+                 print-color-adjust: exact !important;
+                 font-size: 8.5pt; /* Reduced from 10pt */
+                 line-height: 1.3; /* Tighter line height */
              }
              #page-title,
              #input-container,
@@ -127,27 +226,65 @@
                  display: block !important;
              }
              .doc-output:not(.active) { display: none !important; }
+             
+             /* Reduce all spacing and sizing for print */
+             .output-header {
+                 margin-bottom: 0.3cm !important;
+             }
+             .output-customer {
+                 margin-bottom: 0.3cm !important;
+                 padding: 0.2cm !important;
+             }
              table {
-                 font-size: 9pt; /* Can reduce slightly */
-                 page-break-inside: auto; /* Allow table rows to break if necessary */
+                 font-size: 7.5pt !important; /* Reduced */
+                 margin-top: 0.2cm !important;
+                 margin-bottom: 0.2cm !important;
+                 page-break-inside: auto;
              }
              tr {
-                 page-break-inside: avoid; /* Try to keep rows together */
+                 page-break-inside: avoid;
                  page-break-after: auto;
              }
-             th, td { padding: 0.3rem; }
-             /* Try to keep notes/terms block together and avoid breaking right after it */
-             .output-notes-terms, .output-payment-details, .contract-section {
-                 page-break-inside: avoid;
-                 page-break-after: auto; /* Changed from avoid to auto, avoid can sometimes force breaks */
+             th, td { 
+                 padding: 0.15cm 0.2cm !important; /* Reduced padding */
+                 line-height: 1.2 !important;
              }
-             /* Try very hard to keep the signature area on one page */
+             h1, h2, h3 {
+                 margin-top: 0.2cm !important;
+                 margin-bottom: 0.2cm !important;
+             }
+             p {
+                 margin-top: 0.1cm !important;
+                 margin-bottom: 0.1cm !important;
+             }
+             /* Compact notes/terms section */
+             .output-notes-terms, .output-payment-details {
+                 margin-top: 0.3cm !important;
+                 gap: 0.3cm !important;
+                 font-size: 7.5pt !important;
+                 page-break-inside: auto; /* Allow breaking if needed */
+             }
+             .contract-section {
+                 margin-top: 0.3cm !important;
+                 padding-top: 0.3cm !important;
+                 page-break-inside: auto;
+             }
+             /* Compact signature area */
              .signature-area {
-                 margin-top: 1.5cm;
-                 padding-top: 0.5cm;
+                 margin-top: 0.5cm !important; /* Reduced from 1.5cm */
+                 padding-top: 0.3cm !important;
                  border-top: 1px solid #ccc !important;
                  page-break-inside: avoid !important;
-                 page-break-before: auto; /* Let browser decide if it needs to break before */
+                 font-size: 7.5pt !important;
+             }
+             .signature-box {
+                 margin-top: 0.5cm !important; /* Reduced from mt-12 */
+                 padding-top: 0.2cm !important;
+             }
+             .output-totals {
+                 margin-top: 0.2cm !important;
+                 margin-bottom: 0.2cm !important;
+                 font-size: 8pt !important;
              }
              th, .project-name-row td { background-color: #f3f4f6 !important; print-color-adjust: exact !important; }
              h1, h2, h3 { color: black !important; page-break-after: avoid; } /* Avoid breaking after headings */
@@ -160,10 +297,10 @@
 <body class="bg-gray-100 p-4 md:p-8">
 
     <div class="container mx-auto">
-        <h1 id="page-title" class="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-gray-800">โปรแกรมสร้างเอกสารของฟรีแลนซ์</h1>
+        <h1 id="page-title" class="text-3xl md:text-4xl font-bold mb-6 md:mb-8 text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">โปรแกรมสร้างเอกสารของฟรีแลนซ์</h1>
 
-        <!-- Document Type Selector -->
-        <div id="doc-type-selector" class="mb-4 flex justify-center border-b border-gray-300">
+        <!-- Document Type Selector (Sticky) -->
+        <div id="doc-type-selector" class="flex justify-center border-b border-gray-300">
             <button class="tab-button px-4 py-2 rounded-t-md active" onclick="switchDocType('quotation')">ใบเสนอราคา</button>
             <button class="tab-button px-4 py-2 rounded-t-md" onclick="switchDocType('invoice')">ใบแจ้งหนี้</button>
             <button class="tab-button px-4 py-2 rounded-t-md" onclick="switchDocType('receipt')">ใบเสร็จรับเงิน</button>
@@ -411,10 +548,25 @@
 
 
             <!-- Action Buttons -->
-            <div class="action-button-container mt-6 text-center space-x-4">
-                <button id="download-button" onclick="downloadExcel()" class="btn-success">ดาวน์โหลดเป็น Excel (.xlsx)</button>
-                <button onclick="window.print()" class="btn-primary">พิมพ์เอกสาร</button>
-                <button onclick="clearSavedData()" class="btn-danger" title="ลบข้อมูลที่บันทึกไว้ทั้งหมดและรีเซ็ทกลับเป็นค่าเริ่มต้น">🗑️ ล้างข้อมูลที่บันทึก</button>
+            <div class="action-button-container mt-8 text-center space-x-3 flex flex-wrap justify-center gap-3">
+                <button id="download-button" onclick="downloadExcel()" class="btn-success inline-flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    ดาวน์โหลดเป็น Excel
+                </button>
+                <button onclick="window.print()" class="btn-primary inline-flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    พิมพ์เอกสาร
+                </button>
+                <button onclick="clearSavedData()" class="btn-danger inline-flex items-center" title="ลบข้อมูลที่บันทึกไว้ทั้งหมดและรีเซ็ทกลับเป็นค่าเริ่มต้น">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    ล้างข้อมูลที่บันทึก
+                </button>
             </div>
              <!-- Download Status Area -->
             <div id="download-status" class="mt-4 text-center font-medium"></div>
@@ -1349,6 +1501,20 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Add scroll effect for sticky header
+            const docTypeSelector = document.getElementById('doc-type-selector');
+            let lastScrollTop = 0;
+            
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                if (scrollTop > 50) {
+                    docTypeSelector.classList.add('scrolled');
+                } else {
+                    docTypeSelector.classList.remove('scrolled');
+                }
+                lastScrollTop = scrollTop;
+            });
+            
             // Load saved data first
             loadFormData();
             
