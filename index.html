@@ -981,9 +981,12 @@
                     }
                 } else if (el.className) {
                     // Save by class name for dynamically generated inputs
-                    const key = el.className.split(' ')[0];
-                    if (!data[key]) data[key] = [];
-                    data[key].push(el.value);
+                    const classList = el.className.split(' ');
+                    const key = classList.find(c => c.includes('input') || c.includes('name'));
+                    if (key && !key.includes('item-')) { // Exclude item row inputs
+                        if (!data[key]) data[key] = [];
+                        data[key].push(el.value);
+                    }
                 }
             });
             
@@ -1050,6 +1053,16 @@
                     } else {
                         el.value = data[key];
                     }
+                } else {
+                    // Try to restore by class name
+                    const elements = inputSection.querySelectorAll(`.${key}`);
+                    if (elements.length > 0 && Array.isArray(data[key])) {
+                        elements.forEach((el, idx) => {
+                            if (data[key][idx] !== undefined) {
+                                el.value = data[key][idx];
+                            }
+                        });
+                    }
                 }
             });
             
@@ -1085,6 +1098,9 @@
                     });
                 }
             }
+            
+            // Recalculate after restore
+            calculateDocTotals(docType);
         }
 
         function clearSavedData() {
@@ -1195,16 +1211,19 @@
 
                  // Updated totals HTML - Added discount row for quotation
                  if (docType === 'quotation') {
+                     const discountPercent = parseFloat(document.getElementById('quotation-discount-percent')?.value) || 0;
+                     const hasDiscount = discountPercent > 0;
+                     
                      totalsContainer.innerHTML = `
                         <div class="w-full md:w-1/2 lg:w-2/5 text-sm">
                             <div class="flex justify-between py-1">
                                 <span>รวมเงิน</span>
                                 <span class="font-medium grand-total">${subTotalStr}</span>
                             </div>
-                            <div class="flex justify-between py-1">
+                            ${hasDiscount ? `<div class="flex justify-between py-1">
                                 <span>ส่วนลด</span>
                                 <span class="font-medium total-discount">${discountStr}</span>
-                            </div>
+                            </div>` : ''}
                             <div class="flex justify-between py-2 border-t-2 border-gray-400 mt-1 font-bold text-lg">
                                 <span>ยอดสุทธิ</span>
                                 <span class="net-total">${netTotalStr}</span>
